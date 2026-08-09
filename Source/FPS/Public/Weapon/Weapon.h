@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <GameplayTagContainer.h>
+
 #include "CoreMinimal.h"
 #include <GameFramework/Actor.h>
 
@@ -20,6 +22,10 @@ private:
 	// Weapon mesh third-person view.
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USkeletalMeshComponent> Mesh3P;
+	
+protected:
+	UPROPERTY(EditAnywhere, Category = "FPS|WeaponType")
+	FGameplayTag WeaponType;
 
 public:
 	AWeapon();
