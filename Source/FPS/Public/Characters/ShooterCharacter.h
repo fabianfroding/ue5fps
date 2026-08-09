@@ -8,7 +8,9 @@
 #include "ShooterCharacter.generated.h"
 
 class UCombatComponent;
+
 class UCameraComponent;
+class UInputAction;
 class USpringArmComponent;
 
 UCLASS()
@@ -29,15 +31,40 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> FirstPersonCamera;
+	
+	UPROPERTY(EditAnywhere, Category = "FPS|Input")
+	TObjectPtr<UInputAction> CycleWeaponAction;
+	
+	UPROPERTY(EditAnywhere, Category = "FPS|Input")
+	TObjectPtr<UInputAction> FireWeaponAction;
+	
+	UPROPERTY(EditAnywhere, Category = "FPS|Input")
+	TObjectPtr<UInputAction> ReloadWeaponAction;
+	
+	UPROPERTY(EditAnywhere, Category = "FPS|Input")
+	TObjectPtr<UInputAction> AimWeaponAction;
 
 public:
 	AShooterCharacter();
 
-protected:
-	virtual void BeginPlay() override;
-
-public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	/* DEV NOTE.
+	 * Could argue that the controller should be handling all input for the sake of single responsibility principle.
+	 * However, that would mean that we would have to cast to AShooterCharacter every input to perform the relevant logic on the CombatComponent, 
+	 * which is not optimal would also add an additional include.
+	 * That is why we have these inputs directly in this class instead.
+	 */
+	
+	void InputCycleWeapon();
+	void InputReloadWeapon();
+	void InputFireWeaponPressed();
+	void InputFireWeaponReleased();
+	void InputAimPressed();
+	void InputAimReleased();
+	
+protected:
+	virtual void BeginPlay() override;
 
 };
