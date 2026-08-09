@@ -7,6 +7,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Combat/CombatComponent.h"
+#include "Data/WeaponData.h"
 #include "GameFramework/SpringArmComponent.h"
 
 AShooterCharacter::AShooterCharacter()
@@ -96,4 +97,10 @@ void AShooterCharacter::InputAimPressed()
 void AShooterCharacter::InputAimReleased()
 {
 	CombatComponent->InitiateAimReleased();
+}
+
+FName AShooterCharacter::GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType)
+{
+	checkf(CombatComponent->WeaponData, TEXT("AShooterCharacter::GetWeaponAttachPoint_Implementation: No Weapon Data Asset - Please fill out BP_ShooterCharacter"));
+	return CombatComponent->WeaponData->GripPoints.FindChecked(WeaponType);
 }

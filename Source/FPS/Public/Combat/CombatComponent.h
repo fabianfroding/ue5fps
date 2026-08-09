@@ -7,10 +7,16 @@
 
 #include "CombatComponent.generated.h"
 
+class UWeaponData;
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPS_API UCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "FPS|WeaponData")
+	TObjectPtr<UWeaponData> WeaponData;
 
 public:
 	UCombatComponent();

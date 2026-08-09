@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/PlayerInterface.h"
 
 #include "ShooterCharacter.generated.h"
 
@@ -14,7 +15,7 @@ class UInputAction;
 class USpringArmComponent;
 
 UCLASS()
-class FPS_API AShooterCharacter : public ACharacter
+class FPS_API AShooterCharacter : public ACharacter, public IPlayerInterface
 {
 	GENERATED_BODY()
 	
@@ -63,6 +64,10 @@ public:
 	void InputFireWeaponReleased();
 	void InputAimPressed();
 	void InputAimReleased();
+	
+	/* Player Interface */
+	virtual FName GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) override;
+	/* ~PlayerInterface */
 	
 protected:
 	virtual void BeginPlay() override;
