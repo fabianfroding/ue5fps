@@ -50,6 +50,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void PossessedBy(AController* NewController) override;
 	
 	/* DEV NOTE.
 	 * Could argue that the controller should be handling all input for the sake of single responsibility principle.
