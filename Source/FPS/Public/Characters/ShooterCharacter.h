@@ -8,6 +8,7 @@
 
 #include "ShooterCharacter.generated.h"
 
+struct FGameplayTag;
 class UCombatComponent;
 
 class UCameraComponent;
@@ -68,6 +69,8 @@ public:
 	
 	/* Player Interface */
 	virtual FName GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) override;
+	virtual USkeletalMeshComponent* GetMesh1P_Implementation() const override { return Mesh1P; }
+	virtual USkeletalMeshComponent* GetMesh3P_Implementation() const override { return GetMesh(); }
 	/* ~PlayerInterface */
 	
 protected:

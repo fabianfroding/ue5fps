@@ -29,11 +29,17 @@ protected:
 
 public:
 	AWeapon();
+	virtual void OnRep_Instigator() override;
 	
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	USkeletalMeshComponent* GetMesh3P() const { return Mesh3P; }
+	
+	void AttachToOwningPawn() const;
 
 protected:
 	virtual void BeginPlay() override;
+	
+private:
+	void SetMeshVisibilities(APawn* OwningPawn) const;
 	
 };
