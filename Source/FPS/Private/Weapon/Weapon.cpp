@@ -28,6 +28,8 @@ AWeapon::AWeapon()
 
 void AWeapon::OnRep_Instigator()
 {
+	// DEV NOTE: Sometimes the order of replication is not deterministic, so even though we have attachment in the OnRep of CurrentWeapon, we still want to do this here as well just in case.
+	
 	Super::OnRep_Instigator();
 	AttachToOwningPawn();
 }

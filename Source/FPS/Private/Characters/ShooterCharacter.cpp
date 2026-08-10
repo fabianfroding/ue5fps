@@ -51,6 +51,15 @@ void AShooterCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AShooterCharacter::BeginDestroy()
+{
+	Super::BeginDestroy();
+	if (IsValid(CombatComponent))
+	{
+		CombatComponent->DestroyWeaponInventory();
+	}
+}
+
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

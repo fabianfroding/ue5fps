@@ -23,8 +23,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "FPS|Weapon")
 	TArray<TSubclassOf<AWeapon>> DefaultWeaponClasses;
 	
-	UPROPERTY(Replicated, Transient) // Transient - can not save to disk.
+	UPROPERTY(Transient, Replicated) // Transient - can not save to disk.
 	TArray<AWeapon*> WeaponInventory;
+	
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
+	AWeapon* CurrentWeapon;
 
 public:
 	UCombatComponent();
@@ -42,8 +45,13 @@ public:
 	
 	void SpawnWeaponInventory();
 	void DestroyWeaponInventory();
+	void EquipWeapon(AWeapon* WeaponToEquip);
 	
 private:
 	AWeapon* SpawnWeapon(TSubclassOf<AWeapon> WeaponClass) const;
+	
+	// DEV NOTE: OnRep with param matching the replicated type allows access to the value before the change.
+	UFUNCTION()
+	void OnRep_CurrentWeapon(AWeapon* LastWeapon);
 	
 };
