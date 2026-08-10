@@ -21,14 +21,18 @@ public:
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "FPS|Weapon")
-	TSubclassOf<AWeapon> DefaultWeaponClass;
+	TArray<TSubclassOf<AWeapon>> DefaultWeaponClasses;
+	
+	UPROPERTY(Replicated, Transient) // Transient - can not save to disk.
+	TArray<AWeapon*> WeaponInventory;
 
 public:
 	UCombatComponent();
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override;
 	
-	// Cycle to the next weapon in the inventory.
+	// Cycle to the next weapon in the weapon inventory.
 	void InitiateCycleWeapon();
 	void InitiateFireWeaponPressed();
 	void InitiateFireWeaponReleased();
@@ -36,8 +40,8 @@ public:
 	void InitiateAimPressed();
 	void InitiateAimReleased();
 	
-	void SpawnInventory();
-	void DestroyInventory();
+	void SpawnWeaponInventory();
+	void DestroyWeaponInventory();
 	
 private:
 	AWeapon* SpawnWeapon(TSubclassOf<AWeapon> WeaponClass) const;

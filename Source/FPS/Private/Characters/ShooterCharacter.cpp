@@ -74,7 +74,7 @@ void AShooterCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	if (IsValid(CombatComponent))
 	{
-		CombatComponent->SpawnInventory();
+		CombatComponent->SpawnWeaponInventory();
 	}
 }
 

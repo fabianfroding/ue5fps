@@ -2,6 +2,7 @@
 
 #include "Combat/CombatComponent.h"
 
+#include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
 
 UCombatComponent::UCombatComponent()
@@ -12,6 +13,12 @@ UCombatComponent::UCombatComponent()
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UCombatComponent, WeaponInventory);
 }
 
 void UCombatComponent::InitiateCycleWeapon()
@@ -44,18 +51,25 @@ void UCombatComponent::InitiateAimReleased()
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateAimReleased"), false);
 }
 
-void UCombatComponent::SpawnInventory()
+void UCombatComponent::SpawnWeaponInventory()
 {
-	AWeapon* NewWeapon = SpawnWeapon(DefaultWeaponClass);
-	if (IsValid(NewWeapon))
+	if (GetOwner()->GetLocalRole() < ROLE_Authority) return;
+	
+	for (TSubclassOf<AWeapon>& WeaponClass : DefaultWeaponClasses)
 	{
-		NewWeapon->AttachToOwningPawn();
+		AWeapon* Weapon = SpawnWeapon(WeaponClass);
+		WeaponInventory.AddUnique(Weapon);
+	}
+	
+	if (WeaponInventory.Num() > 0)
+	{
+		WeaponInventory[0]->AttachToOwningPawn();
 	}
 }
 
-void UCombatComponent::DestroyInventory()
+void UCombatComponent::DestroyWeaponInventory()
 {
-	// TODO: Destroy inventory once we have one.
+	// TODO: Destroy weapon inventory once we have one.
 }
 
 AWeapon* UCombatComponent::SpawnWeapon(TSubclassOf<AWeapon> WeaponClass) const
