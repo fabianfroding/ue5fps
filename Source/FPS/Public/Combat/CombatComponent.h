@@ -19,6 +19,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS|WeaponData")
 	TObjectPtr<UWeaponData> WeaponData;
 	
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	bool bAiming;
+	
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon)
 	AWeapon* CurrentWeapon;
@@ -54,5 +57,11 @@ private:
 	// DEV NOTE: OnRep with param matching the replicated type allows access to the value before the change.
 	UFUNCTION()
 	void OnRep_CurrentWeapon(AWeapon* LastWeapon);
+	
+	// Reliable: Guaranteed to reach server, even if packets get lost, there's a handshake, i.e. it will be sent again.
+	UFUNCTION(Server, Reliable)
+	void Server_Aim(const bool bPressed);
+	
+	void Local_Aim(const bool bPressed);
 	
 };

@@ -20,6 +20,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UCombatComponent, WeaponInventory);
 	DOREPLIFETIME(UCombatComponent, CurrentWeapon);
+	DOREPLIFETIME_CONDITION(UCombatComponent, bAiming, COND_SkipOwner); // Already set locally, no need to replicate for owner.
 }
 
 void UCombatComponent::InitiateCycleWeapon()
@@ -44,12 +45,26 @@ void UCombatComponent::InitiateReloadWeapon()
 
 void UCombatComponent::InitiateAimPressed()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateAimPressed"), false);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateAimPressed"), false);
+	Local_Aim(true); // Set locally first. Replicated variables only replicate from server -> client, so we need a server RPC here.
+	Server_Aim(true);
 }
 
 void UCombatComponent::InitiateAimReleased()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateAimReleased"), false);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateAimReleased"), false);
+	Local_Aim(false);
+	Server_Aim(false);
+}
+
+void UCombatComponent::Server_Aim_Implementation(const bool bPressed)
+{
+	Local_Aim(bPressed);
+}
+
+void UCombatComponent::Local_Aim(const bool bPressed)
+{
+	bAiming = bPressed;
 }
 
 void UCombatComponent::SpawnWeaponInventory()
