@@ -33,6 +33,7 @@ public:
 	
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	USkeletalMeshComponent* GetMesh3P() const { return Mesh3P; }
+	FGameplayTag GetWeaponType() const { return WeaponType; }
 	
 	void AttachToOwningPawn() const;
 
