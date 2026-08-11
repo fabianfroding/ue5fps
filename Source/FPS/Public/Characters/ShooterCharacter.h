@@ -20,10 +20,11 @@ class FPS_API AShooterCharacter : public ACharacter, public IPlayerInterface
 {
 	GENERATED_BODY()
 	
-private:
-	UPROPERTY(VisibleAnywhere)
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Combat")
 	TObjectPtr<UCombatComponent> CombatComponent;
 	
+private:
 	// 1st person view (arms).
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USkeletalMeshComponent> Mesh1P;

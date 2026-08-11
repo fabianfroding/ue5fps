@@ -24,7 +24,7 @@ private:
 	TObjectPtr<USkeletalMeshComponent> Mesh3P;
 	
 protected:
-	UPROPERTY(EditAnywhere, Category = "FPS|WeaponType")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|WeaponType")
 	FGameplayTag WeaponType;
 
 public:

@@ -16,8 +16,12 @@ class FPS_API UCombatComponent : public UActorComponent
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "FPS|WeaponData")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS|WeaponData")
 	TObjectPtr<UWeaponData> WeaponData;
+	
+protected:
+	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon)
+	AWeapon* CurrentWeapon;
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "FPS|Weapon")
@@ -25,9 +29,6 @@ private:
 	
 	UPROPERTY(Transient, Replicated) // Transient - can not save to disk.
 	TArray<AWeapon*> WeaponInventory;
-	
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
-	AWeapon* CurrentWeapon;
 
 public:
 	UCombatComponent();
