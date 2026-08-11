@@ -24,6 +24,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Combat")
 	TObjectPtr<UCombatComponent> CombatComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Camera")
+	TObjectPtr<UCameraComponent> FirstPersonCamera;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Aiming")
+	float DefaultFOV;
+	
 private:
 	// 1st person view (arms).
 	UPROPERTY(VisibleAnywhere)
@@ -31,9 +37,6 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArm;
-	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UCameraComponent> FirstPersonCamera;
 	
 	UPROPERTY(EditAnywhere, Category = "FPS|Input")
 	TObjectPtr<UInputAction> CycleWeaponAction;
@@ -77,5 +80,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnAim(const bool bIsAiming);
 
 };

@@ -44,11 +44,16 @@ AShooterCharacter::AShooterCharacter()
 	
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 	CombatComponent->SetIsReplicated(true);
+	
+	DefaultFOV = 90.f;
+	
+	// DEV NOTE: Calling virtual functions in constructors is bad practice. Issues usually arise when using subclasses.
 }
 
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	FirstPersonCamera->SetFieldOfView(DefaultFOV);
 }
 
 void AShooterCharacter::BeginDestroy()
@@ -110,11 +115,13 @@ void AShooterCharacter::InputFireWeaponReleased()
 void AShooterCharacter::InputAimPressed()
 {
 	CombatComponent->InitiateAimPressed();
+	OnAim(true);
 }
 
 void AShooterCharacter::InputAimReleased()
 {
 	CombatComponent->InitiateAimReleased();
+	OnAim(false);
 }
 
 FName AShooterCharacter::GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType)
