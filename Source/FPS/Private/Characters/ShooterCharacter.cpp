@@ -108,7 +108,7 @@ void AShooterCharacter::CalculateTurnInPlaceParameters(const float DeltaTime)
 		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
 		AOYaw = DeltaAimRotation.Yaw;
 		
-		if (TurningStatus != ETurningInPlace::NotTurning)
+		if (TurningStatus == ETurningInPlace::NotTurning)
 		{
 			InterpAOYaw = AOYaw;
 		}
