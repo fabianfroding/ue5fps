@@ -20,6 +20,10 @@ class FPS_API AShooterCharacter : public ACharacter, public IPlayerInterface
 {
 	GENERATED_BODY()
 	
+public:
+	UPROPERTY(BlueprintReadOnly, Category = "FPS|FABRIK")
+	FTransform FABRIKSocketTransform;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Combat")
 	TObjectPtr<UCombatComponent> CombatComponent;
@@ -87,5 +91,8 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnAim(const bool bIsAiming);
+	
+private:
+	void CalculateFABRIKSocketTransform();
 
 };

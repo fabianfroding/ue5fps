@@ -51,6 +51,8 @@ public:
 	void DestroyWeaponInventory();
 	void EquipWeapon(AWeapon* WeaponToEquip);
 	
+	AWeapon* GetCurrentWeapon() const { return CurrentWeapon; }
+	
 private:
 	AWeapon* SpawnWeapon(TSubclassOf<AWeapon> WeaponClass) const;
 	

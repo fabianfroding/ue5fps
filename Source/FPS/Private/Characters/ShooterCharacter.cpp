@@ -9,6 +9,7 @@
 #include "Combat/CombatComponent.h"
 #include "Data/WeaponData.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Weapon/Weapon.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -68,6 +69,23 @@ void AShooterCharacter::BeginDestroy()
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	CalculateFABRIKSocketTransform();
+}
+
+void AShooterCharacter::CalculateFABRIKSocketTransform()
+{
+	if (IsValid(CombatComponent) && CombatComponent->GetCurrentWeapon() && IsValid(CombatComponent->GetCurrentWeapon()->GetMesh3P()))
+	{
+		FABRIKSocketTransform = CombatComponent->GetCurrentWeapon()->GetMesh3P()->GetSocketTransform("FABRIK_Socket", RTS_World);
+		FVector OutLocation;
+		FRotator OutRotation;
+		GetMesh()->TransformToBoneSpace("hand_r", 
+			FABRIKSocketTransform.GetLocation(), 
+			FABRIKSocketTransform.GetRotation().Rotator(), 
+			OutLocation, OutRotation);
+		FABRIKSocketTransform.SetLocation(OutLocation);
+		FABRIKSocketTransform.SetRotation(OutRotation.Quaternion());
+	}
 }
 
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
