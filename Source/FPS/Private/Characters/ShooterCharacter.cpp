@@ -124,6 +124,20 @@ void AShooterCharacter::InputAimReleased()
 	OnAim(false);
 }
 
+FRotator AShooterCharacter::GetFixedAimRotation() const
+{
+	// DEV NOTE: GetAimBaseRotation uses a compressed replicated value. We need to map the pitch [270, 360] to [-90, 0].
+	// This is to prevent the 3P-mesh from snapping upwards for other players when the local player aims down.
+	FRotator AimRotation = GetBaseAimRotation();
+	if (AimRotation.Pitch > 90.f && !IsLocallyControlled())
+	{
+		const FVector2D InRange(270, 360);
+		const FVector2D OutRange(-90, 0);
+		AimRotation.Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AimRotation.Pitch);
+	}
+	return AimRotation;
+}
+
 FName AShooterCharacter::GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType)
 {
 	checkf(CombatComponent->WeaponData, TEXT("AShooterCharacter::GetWeaponAttachPoint_Implementation: No Weapon Data Asset - Please fill out BP_ShooterCharacter"));

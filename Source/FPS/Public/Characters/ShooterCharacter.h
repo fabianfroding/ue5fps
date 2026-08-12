@@ -71,6 +71,10 @@ public:
 	void InputAimPressed();
 	void InputAimReleased();
 	
+	// DEV NOTE: Functions that need to be accessed in thread-safe function (such as Anim BPs) need to be const.
+	UFUNCTION(BlueprintCallable)
+	FRotator GetFixedAimRotation() const;
+	
 	/* Player Interface */
 	virtual FName GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) override;
 	virtual USkeletalMeshComponent* GetMesh1P_Implementation() const override { return Mesh1P; }
