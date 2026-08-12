@@ -69,6 +69,7 @@ void AShooterCharacter::BeginDestroy()
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	CalculateTurnInPlaceParameters();
 	CalculateFABRIKSocketTransform();
 }
 
@@ -86,6 +87,11 @@ void AShooterCharacter::CalculateFABRIKSocketTransform()
 		FABRIKSocketTransform.SetLocation(OutLocation);
 		FABRIKSocketTransform.SetRotation(OutRotation.Quaternion());
 	}
+}
+
+void AShooterCharacter::CalculateTurnInPlaceParameters()
+{
+	
 }
 
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -154,6 +160,12 @@ FRotator AShooterCharacter::GetFixedAimRotation() const
 		AimRotation.Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AimRotation.Pitch);
 	}
 	return AimRotation;
+}
+
+bool AShooterCharacter::HasCurrentWeapon() const
+{
+	// Valid check since this is used in Anim BPs and might run before the combat component is valid.
+	return IsValid(CombatComponent) && CombatComponent->GetCurrentWeapon() != nullptr;
 }
 
 FName AShooterCharacter::GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType)

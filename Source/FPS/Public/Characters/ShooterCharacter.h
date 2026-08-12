@@ -79,6 +79,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FRotator GetFixedAimRotation() const;
 	
+	UFUNCTION(BlueprintPure)
+	bool HasCurrentWeapon() const;
+	
 	/* Player Interface */
 	virtual FName GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) override;
 	virtual USkeletalMeshComponent* GetMesh1P_Implementation() const override { return Mesh1P; }
@@ -94,5 +97,6 @@ protected:
 	
 private:
 	void CalculateFABRIKSocketTransform();
+	void CalculateTurnInPlaceParameters();
 
 };
