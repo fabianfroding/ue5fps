@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/PlayerInterface.h"
+#include "ShooterTypes/ShooterTypes.h"
 
 #include "ShooterCharacter.generated.h"
 
@@ -34,6 +35,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Aiming")
 	float DefaultFOV;
 	
+	UPROPERTY(BlueprintReadOnly, Category = "FPS|TurnInPlace")
+	float AOYaw;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "FPS|Strafing")
+	float MovementOffsetYaw;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "FPS|TurnInPlace")
+	ETurningInPlace TurningStatus = ETurningInPlace::NotTurning;
+	
 private:
 	// 1st person view (arms).
 	UPROPERTY(VisibleAnywhere)
@@ -53,6 +63,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "FPS|Input")
 	TObjectPtr<UInputAction> AimWeaponAction;
+	
+	FRotator StartingAimRotation;
+	float InterpAOYaw;
 
 public:
 	AShooterCharacter();
@@ -97,6 +110,7 @@ protected:
 	
 private:
 	void CalculateFABRIKSocketTransform();
-	void CalculateTurnInPlaceParameters();
+	void CalculateTurnInPlaceParameters(const float DeltaTime);
+	void TurnInPlace(const float DeltaTime);
 
 };

@@ -9,6 +9,7 @@
 #include "Combat/CombatComponent.h"
 #include "Data/WeaponData.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Weapon/Weapon.h"
 
 AShooterCharacter::AShooterCharacter()
@@ -47,6 +48,7 @@ AShooterCharacter::AShooterCharacter()
 	CombatComponent->SetIsReplicated(true);
 	
 	DefaultFOV = 90.f;
+	TurningStatus = ETurningInPlace::NotTurning;
 	
 	// DEV NOTE: Calling virtual functions in constructors is bad practice. Issues usually arise when using subclasses.
 }
@@ -55,6 +57,7 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	FirstPersonCamera->SetFieldOfView(DefaultFOV);
+	StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 }
 
 void AShooterCharacter::BeginDestroy()
@@ -69,7 +72,7 @@ void AShooterCharacter::BeginDestroy()
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	CalculateTurnInPlaceParameters();
+	CalculateTurnInPlaceParameters(DeltaTime);
 	CalculateFABRIKSocketTransform();
 }
 
@@ -89,9 +92,72 @@ void AShooterCharacter::CalculateFABRIKSocketTransform()
 	}
 }
 
-void AShooterCharacter::CalculateTurnInPlaceParameters()
+void AShooterCharacter::CalculateTurnInPlaceParameters(const float DeltaTime)
 {
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	const float Speed = Velocity.Size();
+	const bool bIsInAir = GetCharacterMovement()->IsFalling();
 	
+	// Standing still and not jumping.
+	if (Speed == 0.f && !bIsInAir)
+	{
+		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		
+		// Get delta aim rotation - the diff in rotation of my current aim rot from the initial aim rot (StartingAimRotation is set in BeginPlay).
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
+		AOYaw = DeltaAimRotation.Yaw;
+		
+		if (TurningStatus != ETurningInPlace::NotTurning)
+		{
+			InterpAOYaw = AOYaw;
+		}
+		
+		// Interpolate the InterpAOYaw value to zero.
+		TurnInPlace(DeltaTime);
+	}
+	
+	// Running or jumping.
+	if (Speed > 0.f || bIsInAir)
+	{
+		// Reset initial aim rot to the actual current aim rot.
+		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		AOYaw = 0.f;
+		FRotator AimRotation = GetBaseAimRotation();
+		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(GetVelocity());
+		
+		// Get movement offset yaw to use in strafe blendspaces - delta between our movement rot and aim rot.
+		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
+		TurningStatus = ETurningInPlace::NotTurning;
+	}
+	
+	AOYaw *= -1.f;
+}
+
+void AShooterCharacter::TurnInPlace(const float DeltaTime)
+{
+	if (AOYaw > 90.f)
+	{
+		TurningStatus = ETurningInPlace::Right;
+	}
+	else if (AOYaw < -90.f)
+	{
+		TurningStatus = ETurningInPlace::Left;
+	}
+	
+	// We are turning.
+	if (TurningStatus != ETurningInPlace::NotTurning)
+	{
+		// Interpolate InterpAO_Yaw down to zero.
+		InterpAOYaw = FMath::FInterpTo(InterpAOYaw, 0.f, DeltaTime, 4.f);
+		AOYaw = InterpAOYaw;
+		
+		if (FMath::Abs(AOYaw) < 5.f)
+		{
+			TurningStatus = ETurningInPlace::NotTurning;
+			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		}
+	}
 }
 
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
