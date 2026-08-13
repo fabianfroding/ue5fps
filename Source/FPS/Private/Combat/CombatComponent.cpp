@@ -2,6 +2,8 @@
 
 #include "Combat/CombatComponent.h"
 
+#include "Data/WeaponData.h"
+#include "Interfaces/PlayerInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
 
@@ -30,12 +32,49 @@ void UCombatComponent::InitiateCycleWeapon()
 
 void UCombatComponent::InitiateFireWeaponPressed()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateFireWeaponPressed"), false);
+	Local_FireWeapon();
+}
+
+void UCombatComponent::Local_FireWeapon()
+{
+	ensure(IsValid(WeaponData));
+	UAnimMontage* Montage1P = WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).FireMontage;
+	const USkeletalMeshComponent* Mesh1P = IPlayerInterface::Execute_GetMesh1P(GetOwner());
+	if (IsValid(Montage1P) && IsValid(Mesh1P))
+	{
+		Mesh1P->GetAnimInstance()->Montage_Play(Montage1P);
+	}
+	
+	Server_FireWeapon();
+}
+
+void UCombatComponent::Server_FireWeapon_Implementation()
+{
+	Multicast_FireWeapon();
+}
+
+void UCombatComponent::Multicast_FireWeapon_Implementation()
+{
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (OwningPawn->IsLocallyControlled())
+	{
+		// TODO: Do local stuff here.
+	}
+	else
+	{
+		ensure(IsValid(WeaponData));
+		UAnimMontage* Montage3P = WeaponData->ThirdPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).FireMontage;
+		const USkeletalMeshComponent* Mesh3P = IPlayerInterface::Execute_GetMesh3P(GetOwner());
+		if (IsValid(Montage3P) && IsValid(Mesh3P))
+		{
+			Mesh3P->GetAnimInstance()->Montage_Play(Montage3P);
+		}
+	}
 }
 
 void UCombatComponent::InitiateFireWeaponReleased()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateFireWeaponReleased"), false);
+	
 }
 
 void UCombatComponent::InitiateReloadWeapon()
@@ -45,14 +84,12 @@ void UCombatComponent::InitiateReloadWeapon()
 
 void UCombatComponent::InitiateAimPressed()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateAimPressed"), false);
 	Local_Aim(true); // Set locally first. Replicated variables only replicate from server -> client, so we need a server RPC here.
 	Server_Aim(true);
 }
 
 void UCombatComponent::InitiateAimReleased()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateAimReleased"), false);
 	Local_Aim(false);
 	Server_Aim(false);
 }
