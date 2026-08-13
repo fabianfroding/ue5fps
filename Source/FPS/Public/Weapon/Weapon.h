@@ -29,6 +29,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS|Aiming")
 	float AimFOV;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS|Trace")
+	float TraceRadius;
 
 public:
 	AWeapon();
@@ -39,6 +42,7 @@ public:
 	FGameplayTag GetWeaponType() const { return WeaponType; }
 	
 	void AttachToOwningPawn() const;
+	void WeaponTrace(FHitResult& OutHit, const float TraceLength);
 
 protected:
 	virtual void BeginPlay() override;

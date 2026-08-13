@@ -10,6 +10,8 @@
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	
+	TraceLength = 20000.f;
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -37,13 +39,18 @@ void UCombatComponent::InitiateFireWeaponPressed()
 
 void UCombatComponent::Local_FireWeapon()
 {
+	if (!IsValid(CurrentWeapon)) return;
 	ensure(IsValid(WeaponData));
+	
 	UAnimMontage* Montage1P = WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).FireMontage;
 	const USkeletalMeshComponent* Mesh1P = IPlayerInterface::Execute_GetMesh1P(GetOwner());
 	if (IsValid(Montage1P) && IsValid(Mesh1P))
 	{
 		Mesh1P->GetAnimInstance()->Montage_Play(Montage1P);
 	}
+	
+	FHitResult Hit;
+	CurrentWeapon->WeaponTrace(Hit, TraceLength);
 	
 	Server_FireWeapon();
 }

@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon)
 	AWeapon* CurrentWeapon;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "FPS|Weapon")
+	float TraceLength;
+	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "FPS|Weapon")
 	TArray<TSubclassOf<AWeapon>> DefaultWeaponClasses;
