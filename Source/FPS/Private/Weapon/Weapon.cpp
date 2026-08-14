@@ -30,6 +30,7 @@ AWeapon::AWeapon()
 	
 	AimFOV = 65.f;
 	TraceRadius = 5.f;
+	FireTime = 0.1f;
 }
 
 void AWeapon::BeginPlay()

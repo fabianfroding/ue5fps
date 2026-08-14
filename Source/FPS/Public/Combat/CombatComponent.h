@@ -35,6 +35,9 @@ private:
 	
 	UPROPERTY(Transient, Replicated) // Transient - can not save to disk.
 	TArray<AWeapon*> WeaponInventory;
+	
+	bool bTriggerPressed;
+	FTimerHandle FireTimer;
 
 public:
 	UCombatComponent();
@@ -76,5 +79,7 @@ private:
 	void Multicast_FireWeapon(const FHitResult& Hit);
 	
 	void Local_FireWeapon();
+	
+	void FireTimerFinished();
 	
 };

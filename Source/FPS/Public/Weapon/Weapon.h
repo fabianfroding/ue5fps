@@ -9,10 +9,24 @@
 
 #include "Weapon.generated.h"
 
+UENUM(BlueprintType)
+enum class EFireType : uint8
+{
+	Auto		UMETA(DisplayName = "Automatic"),
+	SemiAuto	UMETA(DisplayName = "SemiAutomatic")
+};
+
 UCLASS()
 class FPS_API AWeapon : public AActor
 {
 	GENERATED_BODY()
+	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Fire")
+	EFireType FireType;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Fire")
+	float FireTime;
 	
 protected:
 	// Weapon mesh first-person view.
@@ -23,7 +37,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Weapon")
 	TObjectPtr<USkeletalMeshComponent> Mesh3P;
 	
-protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|WeaponType")
 	FGameplayTag WeaponType;
 	
