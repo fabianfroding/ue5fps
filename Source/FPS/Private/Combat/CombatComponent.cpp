@@ -36,8 +36,13 @@ void UCombatComponent::InitiateCycleWeapon()
 
 void UCombatComponent::InitiateFireWeaponPressed()
 {
+	if (!IsValid(CurrentWeapon)) return;
 	bTriggerPressed = true;
-	Local_FireWeapon();
+	
+	if (CurrentWeapon->Ammo > 0)
+	{
+		Local_FireWeapon();
+	}
 }
 
 void UCombatComponent::Local_FireWeapon()
@@ -66,7 +71,9 @@ void UCombatComponent::Local_FireWeapon()
 void UCombatComponent::FireTimerFinished()
 {
 	if (!IsValid(CurrentWeapon)) return;
-	if (bTriggerPressed && CurrentWeapon->FireType == EFireType::Auto)
+	if (bTriggerPressed && 
+		CurrentWeapon->FireType == EFireType::Auto && 
+		CurrentWeapon->Ammo > 0)
 	{
 		Local_FireWeapon();
 	}
@@ -74,15 +81,25 @@ void UCombatComponent::FireTimerFinished()
 
 void UCombatComponent::Server_FireWeapon_Implementation(const FHitResult& Hit)
 {
-	Multicast_FireWeapon(Hit);
+	if (!IsValid(CurrentWeapon)) return;
+	
+	// Part of client-side prediction.
+	// If listen server and is locally controlled = host -> skip ammo prediction.
+	// OR, if server and is locally controlled we already did the fire logic.
+	if (GetNetMode() != NM_ListenServer || !Cast<APawn>(GetOwner())->IsLocallyControlled())
+	{
+		CurrentWeapon->Auth_Fire();
+	}
+	
+	Multicast_FireWeapon(Hit, CurrentWeapon->Ammo);
 }
 
-void UCombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& Hit)
+void UCombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& Hit, const int32 AuthAmmo)
 {
 	APawn* OwningPawn = Cast<APawn>(GetOwner());
 	if (OwningPawn->IsLocallyControlled())
 	{
-		// TODO: Do local stuff here.
+		CurrentWeapon->Rep_Fire(AuthAmmo); // Part of client-side prediction.
 	}
 	else
 	{

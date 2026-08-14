@@ -31,6 +31,10 @@ AWeapon::AWeapon()
 	AimFOV = 65.f;
 	TraceRadius = 5.f;
 	FireTime = 0.1f;
+	MagCapacity = 10;
+	Ammo = 5;
+	StartingCarriedAmmo = 10;
+	AmmoSequence = 0;
 }
 
 void AWeapon::BeginPlay()
@@ -122,6 +126,27 @@ void AWeapon::WeaponTrace(FHitResult& OutHit, const float TraceLength)
 void AWeapon::Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, const TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, const bool bIsFirstPerson)
 {
 	FireEffects(ImpactPoint, ImpactNormal, ImpactSurfaceType, bIsFirstPerson);
+	
+	if (GetInstigator()->IsLocallyControlled())
+	{
+		Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
+		AmmoSequence++;
+	}
+}
+
+void AWeapon::Auth_Fire()
+{
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
+}
+
+void AWeapon::Rep_Fire(const int32 AuthAmmo)
+{
+	if (GetInstigator()->IsLocallyControlled())
+	{
+		Ammo = AuthAmmo;
+		AmmoSequence--;
+		Ammo -= AmmoSequence;
+	}
 }
 
 void AWeapon::SetMeshVisibilities(APawn* OwningPawn) const

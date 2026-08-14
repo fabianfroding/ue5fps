@@ -28,6 +28,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Fire")
 	float FireTime;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Ammo")
+	int32 MagCapacity;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Ammo")
+	int32 Ammo;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Ammo")
+	int32 StartingCarriedAmmo;
+	
 protected:
 	// Weapon mesh first-person view.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Weapon")
@@ -48,6 +57,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "FPS|Trace")
 	bool bShowDebugTrace = false;
+	
+private:
+	int32 AmmoSequence; // Used for client-side prediction.
 
 public:
 	AWeapon();
@@ -61,7 +73,9 @@ public:
 	void WeaponTrace(FHitResult& OutHit, const float TraceLength);
 	
 	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, const TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, const bool bIsFirstPerson);
-
+	void Auth_Fire();
+	void Rep_Fire(const int32 AuthAmmo);
+	
 protected:
 	virtual void BeginPlay() override;
 	
