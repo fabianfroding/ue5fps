@@ -14,13 +14,13 @@ class FPS_API AWeapon : public AActor
 {
 	GENERATED_BODY()
 	
-private:
+protected:
 	// Weapon mesh first-person view.
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Weapon")
 	TObjectPtr<USkeletalMeshComponent> Mesh1P;
 	
 	// Weapon mesh third-person view.
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Weapon")
 	TObjectPtr<USkeletalMeshComponent> Mesh3P;
 	
 protected:
@@ -32,6 +32,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS|Trace")
 	float TraceRadius;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "FPS|Trace")
+	bool bShowDebugTrace = false;
 
 public:
 	AWeapon();
@@ -43,9 +46,14 @@ public:
 	
 	void AttachToOwningPawn() const;
 	void WeaponTrace(FHitResult& OutHit, const float TraceLength);
+	
+	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, const TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, const bool bIsFirstPerson);
 
 protected:
 	virtual void BeginPlay() override;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void FireEffects(const FVector& ImpactPoint, const FVector& ImpactNormal, const EPhysicalSurface ImpactSurfaceType, const bool bIsFirstPerson);
 	
 private:
 	void SetMeshVisibilities(APawn* OwningPawn) const;

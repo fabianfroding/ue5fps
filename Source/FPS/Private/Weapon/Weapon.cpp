@@ -32,6 +32,11 @@ AWeapon::AWeapon()
 	TraceRadius = 5.f;
 }
 
+void AWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
 void AWeapon::OnRep_Instigator()
 {
 	// DEV NOTE: Sometimes the order of replication is not deterministic, so even though we have attachment in the OnRep of CurrentWeapon, we still want to do this here as well just in case.
@@ -90,24 +95,32 @@ void AWeapon::WeaponTrace(FHitResult& OutHit, const float TraceLength)
 			ResponseParams
 		);
 		
-		DrawDebugSphereTraceSingle(
-			GetWorld(),
-			Start,
-			End,
-			TraceRadius,
-			EDrawDebugTrace::ForDuration,
-			bHit,
-			OutHit,
-			FColor::Green,
-			FColor::Red,
-			5.f
-			);
+		if (!bHit)
+		{
+			OutHit.ImpactPoint = End;
+		}
+		
+		if (bShowDebugTrace)
+		{
+			DrawDebugSphereTraceSingle(
+			   GetWorld(),
+			   Start,
+			   End,
+			   TraceRadius,
+			   EDrawDebugTrace::ForDuration,
+			   bHit,
+			   OutHit,
+			   FColor::Green,
+			   FColor::Red,
+			   5.f
+			   );
+		}
 	}
 }
 
-void AWeapon::BeginPlay()
+void AWeapon::Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, const TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, const bool bIsFirstPerson)
 {
-	Super::BeginPlay();
+	FireEffects(ImpactPoint, ImpactNormal, ImpactSurfaceType, bIsFirstPerson);
 }
 
 void AWeapon::SetMeshVisibilities(APawn* OwningPawn) const
