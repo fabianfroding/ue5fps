@@ -50,7 +50,18 @@ AShooterCharacter::AShooterCharacter()
 	DefaultFOV = 90.f;
 	TurningStatus = ETurningInPlace::NotTurning;
 	
+	bWeaponFirstReplicated = false;
+	
 	// DEV NOTE: Calling virtual functions in constructors is bad practice. Issues usually arise when using subclasses.
+}
+
+void AShooterCharacter::WeaponReplicated_Implementation()
+{
+	if (!bWeaponFirstReplicated)
+	{
+		bWeaponFirstReplicated = true;
+		OnWeaponFirstReplicated.Broadcast(CombatComponent->GetCurrentWeapon());
+	}
 }
 
 void AShooterCharacter::BeginPlay()
