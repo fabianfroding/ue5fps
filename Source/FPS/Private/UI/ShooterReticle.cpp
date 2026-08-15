@@ -4,6 +4,7 @@
 
 #include "Characters/ShooterCharacter.h"
 #include "Combat/CombatComponent.h"
+#include "Components/Image.h"
 #include "Weapon/Weapon.h"
 
 
@@ -22,13 +23,20 @@ void UShooterReticle::NativeOnInitialized()
 	{
 		if (AWeapon* Weapon = IPlayerInterface::Execute_GetCurrentWeapon(ShooterCharacter); IsValid(Weapon))
 		{
-			OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance());
-			OnAmmoCounterChanged(Weapon->GetAmmoCounterDynamicMaterialInstance(), Weapon->Ammo, Weapon->MagCapacity);
+			UpdateReticleAndAmmoCounter(Weapon);
 		}
 	}
 	else
 	{
 		ShooterCharacter->OnWeaponFirstReplicated.AddDynamic(this, &ThisClass::OnWeaponFirstReplicated);
+	}
+	
+	if (ShooterCharacter->HasAuthority())
+	{
+		if (AWeapon* Weapon = IPlayerInterface::Execute_GetCurrentWeapon(ShooterCharacter); IsValid(Weapon))
+		{
+			UpdateReticleAndAmmoCounter(Weapon);
+		}
 	}
 }
 
@@ -53,19 +61,31 @@ void UShooterReticle::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 	}
 }
 
-void UShooterReticle::OnWeaponFirstReplicated(AWeapon* Weapon)
-{
-	if (!IsValid(Weapon)) return;
-	OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance());
-	OnAmmoCounterChanged(Weapon->GetAmmoCounterDynamicMaterialInstance(), Weapon->Ammo, Weapon->MagCapacity);
-}
-
 void UShooterReticle::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst)
 {
-	// Set the material on the actual reticle widget to the dyn mat inst
+	CurrentReticleDynMatInst = ReticleDynMatInst;
+	FSlateBrush Brush;
+	Brush.SetResourceObject(ReticleDynMatInst);
+	if (IsValid(ImageReticle))
+	{
+		ImageReticle->SetBrush(Brush);
+	}
 }
 
 void UShooterReticle::OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynMatInst, int32 RoundsCurrent, int32 RoundsMax)
 {
-	// Set the material on the actual ammo counter widget to the dyn mat inst
+	CurrentAmmoCounterDynMatInst = AmmoCounterDynMatInst;
+	FSlateBrush Brush;
+	Brush.SetResourceObject(AmmoCounterDynMatInst);
+	if (IsValid(ImageAmmoCounter))
+	{
+		ImageAmmoCounter->SetBrush(Brush);
+	}
+}
+
+void UShooterReticle::UpdateReticleAndAmmoCounter(AWeapon* Weapon)
+{
+	if (!IsValid(Weapon)) return;
+	OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance());
+	OnAmmoCounterChanged(Weapon->GetAmmoCounterDynamicMaterialInstance(), Weapon->Ammo, Weapon->MagCapacity);
 }
