@@ -27,6 +27,9 @@ void UShooterReticle::NativeOnInitialized()
 	ImageAmmoCounter->SetRenderOpacity(0.f);
 	BaseCornerScaleFactorRoundFired = 0.f;
 	BaseShapeCutFactorRoundFired = 0.f;
+	BaseCornerScaleFactorAiming = 0.f;
+	BaseShapeCutFactorAiming = 0.f;
+	bAiming = false;
 	
 	GetOwningPlayer()->OnPossessedPawnChanged.AddDynamic(this, &ThisClass::OnPossessedPawnChanged);
 	
@@ -64,8 +67,19 @@ void UShooterReticle::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	BaseCornerScaleFactorRoundFired = FMath::FInterpTo(BaseCornerScaleFactorRoundFired, 0.f, InDeltaTime, CurrentReticleParams.RoundFiredInterpSpeed);
 	BaseShapeCutFactorRoundFired = FMath::FInterpTo(BaseShapeCutFactorRoundFired, 0.f, InDeltaTime, CurrentReticleParams.RoundFiredInterpSpeed);
 	
-	BaseCornerScaleFactor = BaseCornerScaleFactorRoundFired + 0.46f;
-	BaseShapeCutFactor = BaseShapeCutFactorRoundFired - 0.7225;
+	BaseCornerScaleFactorAiming = FMath::FInterpTo(
+		BaseCornerScaleFactorAiming, 
+		bAiming ? CurrentReticleParams.ScaleFactorAiming : CurrentReticleParams.ScaleFactorNotAiming, 
+		InDeltaTime, 
+		CurrentReticleParams.AimingInterpSpeed);
+	BaseShapeCutFactorAiming = FMath::FInterpTo(
+		BaseShapeCutFactorAiming,
+		bAiming ? CurrentReticleParams.ShapeCutFactorAiming : CurrentReticleParams.ShapeCutFactorNotAiming,
+		InDeltaTime,
+		CurrentReticleParams.AimingInterpSpeed);
+	
+	BaseCornerScaleFactor = BaseCornerScaleFactorRoundFired + BaseCornerScaleFactorAiming;
+	BaseShapeCutFactor = BaseShapeCutFactorRoundFired + BaseShapeCutFactorAiming;
 	
 	if (CurrentReticleDynMatInst.IsValid())
 	{
@@ -83,6 +97,7 @@ void UShooterReticle::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 		OldPawnCombatComponent->OnReticleChanged.RemoveDynamic(this, &ThisClass::OnReticleChanged);
 		OldPawnCombatComponent->OnAmmoCounterChanged.RemoveDynamic(this, &ThisClass::OnAmmoCounterChanged);
 		OldPawnCombatComponent->OnRoundFired.RemoveDynamic(this, &ThisClass::OnRoundFired);
+		OldPawnCombatComponent->OnAimingStatusChanged.RemoveDynamic(this, &ThisClass::OnAimingStatusChanged);
 	}
 	if (IsValid(NewPawnCombatComponent))
 	{
@@ -91,6 +106,7 @@ void UShooterReticle::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 		NewPawnCombatComponent->OnReticleChanged.AddDynamic(this, &ThisClass::OnReticleChanged);
 		NewPawnCombatComponent->OnAmmoCounterChanged.AddDynamic(this, &ThisClass::OnAmmoCounterChanged);
 		NewPawnCombatComponent->OnRoundFired.AddDynamic(this, &ThisClass::OnRoundFired);
+		NewPawnCombatComponent->OnAimingStatusChanged.AddDynamic(this, &ThisClass::OnAimingStatusChanged);
 	}
 }
 
@@ -128,6 +144,11 @@ void UShooterReticle::OnRoundFired(int32 RoundsCurrent, int32 RoundsMax)
 	CurrentAmmoCounterDynMatInst->SetScalarParameterValue(Ammo::Rounds_Max, RoundsMax);
 	BaseCornerScaleFactorRoundFired += CurrentReticleParams.ScaleFactorRoundFired;
 	BaseShapeCutFactorRoundFired += CurrentReticleParams.ShapeCutFactorRoundFired;
+}
+
+void UShooterReticle::OnAimingStatusChanged(bool bIsAiming)
+{
+	bAiming = bIsAiming;
 }
 
 void UShooterReticle::UpdateReticleAndAmmoCounter(AWeapon* Weapon)

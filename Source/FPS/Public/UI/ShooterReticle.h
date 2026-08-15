@@ -31,6 +31,9 @@ private:
 	float BaseShapeCutFactor;
 	float BaseCornerScaleFactorRoundFired;
 	float BaseShapeCutFactorRoundFired;
+	float BaseCornerScaleFactorAiming;
+	float BaseShapeCutFactorAiming;
+	bool bAiming;
 	
 public:
 	virtual void NativeOnInitialized() override;
@@ -51,6 +54,9 @@ private:
 	
 	UFUNCTION()
 	void OnRoundFired(int32 RoundsCurrent, int32 RoundsMax);
+	
+	UFUNCTION()
+	void OnAimingStatusChanged(bool bIsAiming);
 	
 	void UpdateReticleAndAmmoCounter(AWeapon* Weapon);
 	

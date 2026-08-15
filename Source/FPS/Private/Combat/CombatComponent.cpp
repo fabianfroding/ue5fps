@@ -148,6 +148,7 @@ void UCombatComponent::Server_Aim_Implementation(const bool bPressed)
 void UCombatComponent::Local_Aim(const bool bPressed)
 {
 	bAiming = bPressed;
+	OnAimingStatusChanged.Broadcast(bAiming);
 }
 
 void UCombatComponent::SpawnWeaponInventory()
