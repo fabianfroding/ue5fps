@@ -7,6 +7,7 @@
 #include "CoreMinimal.h"
 #include <GameFramework/Actor.h>
 
+#include "ShooterTypes/ShooterTypes.h"
 #include "Weapon.generated.h"
 
 UENUM(BlueprintType)
@@ -36,6 +37,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Ammo")
 	int32 StartingCarriedAmmo;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "FPS|Reticle")
+	FReticleParams ReticleParams;
 	
 protected:
 	// Weapon mesh first-person view.

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "ShooterTypes/ShooterTypes.h"
 
 #include "ShooterReticle.generated.h"
 
@@ -25,6 +26,11 @@ public:
 private:
 	TWeakObjectPtr<UMaterialInstanceDynamic> CurrentReticleDynMatInst;
 	TWeakObjectPtr<UMaterialInstanceDynamic> CurrentAmmoCounterDynMatInst;
+	FReticleParams CurrentReticleParams;
+	float BaseCornerScaleFactor;
+	float BaseShapeCutFactor;
+	float BaseCornerScaleFactorRoundFired;
+	float BaseShapeCutFactorRoundFired;
 	
 public:
 	virtual void NativeOnInitialized() override;
@@ -38,7 +44,7 @@ private:
 	void OnWeaponFirstReplicated(AWeapon* Weapon) { UpdateReticleAndAmmoCounter(Weapon); }
 	
 	UFUNCTION()
-	void OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst);
+	void OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams);
 	
 	UFUNCTION()
 	void OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynMatInst, int32 RoundsCurrent, int32 RoundsMax);

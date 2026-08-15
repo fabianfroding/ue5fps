@@ -13,12 +13,20 @@ namespace Ammo
 	const FName Rounds_Max = FName("Rounds_Max");
 }
 
+namespace Reticle
+{
+	const FName RoundedCornerScale = FName("RoundedCornerScale");
+	const FName ShapeCutThickness = FName("ShapeCutThickness");
+}
+
 void UShooterReticle::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	
 	ImageReticle->SetRenderOpacity(0.f);
 	ImageAmmoCounter->SetRenderOpacity(0.f);
+	BaseCornerScaleFactorRoundFired = 0.f;
+	BaseShapeCutFactorRoundFired = 0.f;
 	
 	GetOwningPlayer()->OnPossessedPawnChanged.AddDynamic(this, &ThisClass::OnPossessedPawnChanged);
 	
@@ -52,6 +60,18 @@ void UShooterReticle::NativeOnInitialized()
 void UShooterReticle::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+	
+	BaseCornerScaleFactorRoundFired = FMath::FInterpTo(BaseCornerScaleFactorRoundFired, 0.f, InDeltaTime, CurrentReticleParams.RoundFiredInterpSpeed);
+	BaseShapeCutFactorRoundFired = FMath::FInterpTo(BaseShapeCutFactorRoundFired, 0.f, InDeltaTime, CurrentReticleParams.RoundFiredInterpSpeed);
+	
+	BaseCornerScaleFactor = BaseCornerScaleFactorRoundFired + 0.46f;
+	BaseShapeCutFactor = BaseShapeCutFactorRoundFired - 0.7225;
+	
+	if (CurrentReticleDynMatInst.IsValid())
+	{
+		CurrentReticleDynMatInst->SetScalarParameterValue(Reticle::RoundedCornerScale, BaseCornerScaleFactor);
+		CurrentReticleDynMatInst->SetScalarParameterValue(Reticle::ShapeCutThickness, BaseShapeCutFactor);
+	}
 }
 
 void UShooterReticle::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
@@ -74,8 +94,9 @@ void UShooterReticle::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 	}
 }
 
-void UShooterReticle::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst)
+void UShooterReticle::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams)
 {
+	CurrentReticleParams = ReticleParams;
 	CurrentReticleDynMatInst = ReticleDynMatInst;
 	
 	FSlateBrush Brush;
@@ -105,11 +126,13 @@ void UShooterReticle::OnRoundFired(int32 RoundsCurrent, int32 RoundsMax)
 	if (!CurrentAmmoCounterDynMatInst.IsValid()) return;
 	CurrentAmmoCounterDynMatInst->SetScalarParameterValue(Ammo::Rounds_Current, RoundsCurrent);
 	CurrentAmmoCounterDynMatInst->SetScalarParameterValue(Ammo::Rounds_Max, RoundsMax);
+	BaseCornerScaleFactorRoundFired += CurrentReticleParams.ScaleFactorRoundFired;
+	BaseShapeCutFactorRoundFired += CurrentReticleParams.ShapeCutFactorRoundFired;
 }
 
 void UShooterReticle::UpdateReticleAndAmmoCounter(AWeapon* Weapon)
 {
 	if (!IsValid(Weapon)) return;
-	OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance());
+	OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams);
 	OnAmmoCounterChanged(Weapon->GetAmmoCounterDynamicMaterialInstance(), Weapon->Ammo, Weapon->MagCapacity);
 }
