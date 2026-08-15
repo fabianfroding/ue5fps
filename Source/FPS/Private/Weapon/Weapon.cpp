@@ -50,6 +50,24 @@ void AWeapon::OnRep_Instigator()
 	AttachToOwningPawn();
 }
 
+UMaterialInstanceDynamic* AWeapon::GetReticleDynamicMaterialInstance()
+{
+	if (!IsValid(ReticleDynMatInst))
+	{
+		ReticleDynMatInst = UMaterialInstanceDynamic::Create(ReticleMaterial, this);
+	}
+	return ReticleDynMatInst;
+}
+
+UMaterialInstanceDynamic* AWeapon::GetAmmoCounterDynamicMaterialInstance()
+{
+	if (!IsValid(AmmoCounterDynMatInst))
+	{
+		AmmoCounterDynMatInst = UMaterialInstanceDynamic::Create(AmmoCounterMaterial, this);
+	}
+	return AmmoCounterDynMatInst;
+}
+
 void AWeapon::AttachToOwningPawn() const
 {
 	APawn* OwningPawn = GetInstigator<APawn>();

@@ -10,6 +10,9 @@
 class AWeapon;
 class UWeaponData;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReticleChanged, UMaterialInstanceDynamic*, ReticleDynMatInst);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAmmoCounterChanged, UMaterialInstanceDynamic*, AmmoCounterDynMatInst, int32, RoundsCurrent, int32, RoundsMax);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPS_API UCombatComponent : public UActorComponent
 {
@@ -21,6 +24,12 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool bAiming;
+	
+	UPROPERTY(BlueprintAssignable)
+	FReticleChanged OnReticleChanged;
+	
+	UPROPERTY(BlueprintAssignable)
+	FAmmoCounterChanged OnAmmoCounterChanged;
 	
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon)
@@ -45,6 +54,9 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override;
 	
+	UFUNCTION(BlueprintPure, Category = "FPS|Combat")
+	static UCombatComponent* FindCombatComponent(const AActor* Actor) { return IsValid(Actor) ? Actor->FindComponentByClass<UCombatComponent>() : nullptr; }
+	
 	// Cycle to the next weapon in the weapon inventory.
 	void InitiateCycleWeapon();
 	void InitiateFireWeaponPressed();
@@ -56,6 +68,7 @@ public:
 	void SpawnWeaponInventory();
 	void DestroyWeaponInventory();
 	void EquipWeapon(AWeapon* WeaponToEquip);
+	void InitializeWeaponWidgets() const;
 	
 	AWeapon* GetCurrentWeapon() const { return CurrentWeapon; }
 	

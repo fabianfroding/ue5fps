@@ -162,6 +162,7 @@ void UCombatComponent::SpawnWeaponInventory()
 	if (WeaponInventory.Num() > 0)
 	{
 		EquipWeapon(WeaponInventory[0]);
+		InitializeWeaponWidgets();
 	}
 }
 
@@ -180,6 +181,15 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	CurrentWeapon = WeaponToEquip;
 	CurrentWeapon->AttachToOwningPawn();
+}
+
+void UCombatComponent::InitializeWeaponWidgets() const
+{
+	if (IsValid(CurrentWeapon))
+	{
+		OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamicMaterialInstance());
+		OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamicMaterialInstance(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+	}
 }
 
 AWeapon* UCombatComponent::SpawnWeapon(TSubclassOf<AWeapon> WeaponClass) const
@@ -201,4 +211,5 @@ void UCombatComponent::OnRep_CurrentWeapon(AWeapon* LastWeapon)
 	if (!IsValid(CurrentWeapon)) return;
 	CurrentWeapon->AttachToOwningPawn();
 	IPlayerInterface::Execute_WeaponReplicated(GetOwner());
+	InitializeWeaponWidgets();
 }

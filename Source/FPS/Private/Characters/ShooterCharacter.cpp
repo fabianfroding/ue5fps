@@ -64,6 +64,11 @@ void AShooterCharacter::WeaponReplicated_Implementation()
 	}
 }
 
+AWeapon* AShooterCharacter::GetCurrentWeapon_Implementation()
+{
+	return CombatComponent->GetCurrentWeapon();
+}
+
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();

@@ -60,6 +60,18 @@ protected:
 	
 private:
 	int32 AmmoSequence; // Used for client-side prediction.
+	
+	UPROPERTY(EditDefaultsOnly, Category = "FPS|Weapon")
+	TObjectPtr<UMaterialInterface> ReticleMaterial;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "FPS|Weapon")
+	TObjectPtr<UMaterialInterface> AmmoCounterMaterial;
+	
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> ReticleDynMatInst;
+	
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> AmmoCounterDynMatInst;
 
 public:
 	AWeapon();
@@ -68,6 +80,8 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	USkeletalMeshComponent* GetMesh3P() const { return Mesh3P; }
 	FGameplayTag GetWeaponType() const { return WeaponType; }
+	UMaterialInstanceDynamic* GetReticleDynamicMaterialInstance();
+	UMaterialInstanceDynamic* GetAmmoCounterDynamicMaterialInstance();
 	
 	void AttachToOwningPawn() const;
 	void WeaponTrace(FHitResult& OutHit, const float TraceLength);

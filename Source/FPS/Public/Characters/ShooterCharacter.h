@@ -109,6 +109,7 @@ public:
 	virtual USkeletalMeshComponent* GetMesh1P_Implementation() const override { return Mesh1P; }
 	virtual USkeletalMeshComponent* GetMesh3P_Implementation() const override { return GetMesh(); }
 	virtual void WeaponReplicated_Implementation() override;
+	virtual AWeapon* GetCurrentWeapon_Implementation() override;
 	/* ~PlayerInterface */
 	
 protected:

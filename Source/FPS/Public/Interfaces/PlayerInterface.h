@@ -7,6 +7,9 @@
 
 #include "PlayerInterface.generated.h"
 
+class AWeapon;
+struct FGameplayTag;
+
 UINTERFACE()
 class UPlayerInterface : public UInterface
 {
@@ -29,5 +32,8 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void WeaponReplicated();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	AWeapon* GetCurrentWeapon();
 	
 };
