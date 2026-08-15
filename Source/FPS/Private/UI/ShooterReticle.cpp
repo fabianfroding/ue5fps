@@ -7,10 +7,19 @@
 #include "Components/Image.h"
 #include "Weapon/Weapon.h"
 
+namespace Ammo
+{
+	const FName Rounds_Current = FName("Rounds_Current");
+	const FName Rounds_Max = FName("Rounds_Max");
+}
 
 void UShooterReticle::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+	
+	ImageReticle->SetRenderOpacity(0.f);
+	ImageAmmoCounter->SetRenderOpacity(0.f);
+	
 	GetOwningPlayer()->OnPossessedPawnChanged.AddDynamic(this, &ThisClass::OnPossessedPawnChanged);
 	
 	AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(GetOwningPlayer()->GetPawn());
@@ -56,6 +65,8 @@ void UShooterReticle::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 	}
 	if (IsValid(NewPawnCombatComponent))
 	{
+		ImageReticle->SetRenderOpacity(1.f);
+		ImageAmmoCounter->SetRenderOpacity(1.f);
 		NewPawnCombatComponent->OnReticleChanged.AddDynamic(this, &ThisClass::OnReticleChanged);
 		NewPawnCombatComponent->OnAmmoCounterChanged.AddDynamic(this, &ThisClass::OnAmmoCounterChanged);
 	}
@@ -64,6 +75,7 @@ void UShooterReticle::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 void UShooterReticle::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst)
 {
 	CurrentReticleDynMatInst = ReticleDynMatInst;
+	
 	FSlateBrush Brush;
 	Brush.SetResourceObject(ReticleDynMatInst);
 	if (IsValid(ImageReticle))
@@ -75,6 +87,9 @@ void UShooterReticle::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatIn
 void UShooterReticle::OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynMatInst, int32 RoundsCurrent, int32 RoundsMax)
 {
 	CurrentAmmoCounterDynMatInst = AmmoCounterDynMatInst;
+	CurrentAmmoCounterDynMatInst->SetScalarParameterValue(Ammo::Rounds_Current, RoundsCurrent);
+	CurrentAmmoCounterDynMatInst->SetScalarParameterValue(Ammo::Rounds_Max, RoundsMax);
+	
 	FSlateBrush Brush;
 	Brush.SetResourceObject(AmmoCounterDynMatInst);
 	if (IsValid(ImageAmmoCounter))
