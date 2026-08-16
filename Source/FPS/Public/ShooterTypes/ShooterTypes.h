@@ -37,6 +37,12 @@ struct FReticleParams
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float ScaleFactorNotAiming = 0.f;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float ScaleFactorTargeting = 0.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float ScaleFactorNotTargeting = 0.f;
+	
 	// Interp Speeds
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -44,4 +50,7 @@ struct FReticleParams
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float AimingInterpSpeed = 15.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float TargetingPlayerInterpSpeed = 10.f;
 };

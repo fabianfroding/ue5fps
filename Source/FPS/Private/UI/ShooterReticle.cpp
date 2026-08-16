@@ -74,13 +74,20 @@ void UShooterReticle::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		bAiming ? CurrentReticleParams.ScaleFactorAiming : CurrentReticleParams.ScaleFactorNotAiming, 
 		InDeltaTime, 
 		CurrentReticleParams.AimingInterpSpeed);
+	
 	BaseShapeCutFactorAiming = FMath::FInterpTo(
 		BaseShapeCutFactorAiming,
 		bAiming ? CurrentReticleParams.ShapeCutFactorAiming : CurrentReticleParams.ShapeCutFactorNotAiming,
 		InDeltaTime,
 		CurrentReticleParams.AimingInterpSpeed);
 	
-	BaseCornerScaleFactor = BaseCornerScaleFactorRoundFired + BaseCornerScaleFactorAiming;
+	BaseCornerScaleFactorTargetingPlayer = FMath::FInterpTo(
+		BaseCornerScaleFactorTargetingPlayer, 
+		bTargetingPlayer ? CurrentReticleParams.ScaleFactorTargeting : CurrentReticleParams.ScaleFactorNotTargeting,
+		InDeltaTime,
+		CurrentReticleParams.TargetingPlayerInterpSpeed);
+	
+	BaseCornerScaleFactor = BaseCornerScaleFactorRoundFired + BaseCornerScaleFactorAiming + BaseCornerScaleFactorTargetingPlayer;
 	BaseShapeCutFactor = BaseShapeCutFactorRoundFired + BaseShapeCutFactorAiming;
 	
 	if (CurrentReticleDynMatInst.IsValid())
@@ -114,7 +121,7 @@ void UShooterReticle::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 	}
 }
 
-void UShooterReticle::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams)
+void UShooterReticle::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams, bool bCurrentlyTargetingPlayer)
 {
 	CurrentReticleParams = ReticleParams;
 	CurrentReticleDynMatInst = ReticleDynMatInst;
@@ -125,6 +132,8 @@ void UShooterReticle::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatIn
 	{
 		ImageReticle->SetBrush(Brush);
 	}
+	
+	OnTargetingPlayerStatusChanged(bCurrentlyTargetingPlayer);
 }
 
 void UShooterReticle::OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynMatInst, int32 RoundsCurrent, int32 RoundsMax)

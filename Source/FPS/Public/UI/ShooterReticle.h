@@ -33,6 +33,7 @@ private:
 	float BaseShapeCutFactorRoundFired;
 	float BaseCornerScaleFactorAiming;
 	float BaseShapeCutFactorAiming;
+	float BaseCornerScaleFactorTargetingPlayer;
 	bool bAiming;
 	bool bTargetingPlayer;
 	
@@ -48,7 +49,7 @@ private:
 	void OnWeaponFirstReplicated(AWeapon* Weapon) { UpdateReticleAndAmmoCounter(Weapon); }
 	
 	UFUNCTION()
-	void OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams);
+	void OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams, bool bCurrentlyTargetingPlayer);
 	
 	UFUNCTION()
 	void OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynMatInst, int32 RoundsCurrent, int32 RoundsMax);

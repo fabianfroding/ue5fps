@@ -17,6 +17,7 @@ UCombatComponent::UCombatComponent()
 	bAiming = false;
 	bTriggerPressed = false;
 	bHitPlayerLastFrame = false;
+	bHitPlayer = false;
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -51,7 +52,7 @@ void UCombatComponent::TraceForPlayer()
 	FHitResult Hit;
 	GetWorld()->LineTraceSingleByChannel(Hit, EyesWorldLocation, End, FPSTraceChannels::ECC_Weapon, QueryParams, ResponseParams);
 	
-	const bool bHitPlayer = IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<UPlayerInterface>();
+	bHitPlayer = IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<UPlayerInterface>();
 	
 	if (bHitPlayer != bHitPlayerLastFrame)
 	{
@@ -229,7 +230,7 @@ void UCombatComponent::InitializeWeaponWidgets() const
 {
 	if (IsValid(CurrentWeapon))
 	{
-		OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamicMaterialInstance(), CurrentWeapon->ReticleParams);
+		OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamicMaterialInstance(), CurrentWeapon->ReticleParams, bHitPlayer);
 		OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamicMaterialInstance(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
 	}
 }
