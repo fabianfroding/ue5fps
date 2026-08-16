@@ -3,7 +3,9 @@
 #include "Combat/CombatComponent.h"
 
 #include "Data/WeaponData.h"
+#include "FPS/FPS.h"
 #include "Interfaces/PlayerInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
 
@@ -14,11 +16,49 @@ UCombatComponent::UCombatComponent()
 	TraceLength = 20000.f;
 	bAiming = false;
 	bTriggerPressed = false;
+	bHitPlayerLastFrame = false;
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	TraceForPlayer();
+}
+
+void UCombatComponent::TraceForPlayer()
+{
+	const APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(OwningPawn) || !OwningPawn->IsLocallyControlled()) return;
+	
+	const APlayerController* PC = Cast<APlayerController>(OwningPawn->GetController());
+	if (!IsValid(OwningPawn)) return;
+	
+	FVector EyesWorldLocation;
+	FRotator EyesWorldRotation;
+	PC->GetActorEyesViewPoint(EyesWorldLocation, EyesWorldRotation);
+	const FVector EyesWorldDirection = UKismetMathLibrary::GetForwardVector(EyesWorldRotation);
+	
+	const FVector End = EyesWorldLocation + EyesWorldDirection * TraceLength;
+	
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(GetOwner());
+	
+	FCollisionResponseParams ResponseParams;
+	ResponseParams.CollisionResponse.SetAllChannels(ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECC_Pawn, ECR_Block);
+	ResponseParams.CollisionResponse.SetResponse(ECC_PhysicsBody, ECR_Block);
+	
+	FHitResult Hit;
+	GetWorld()->LineTraceSingleByChannel(Hit, EyesWorldLocation, End, FPSTraceChannels::ECC_Weapon, QueryParams, ResponseParams);
+	
+	const bool bHitPlayer = IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<UPlayerInterface>();
+	
+	if (bHitPlayer != bHitPlayerLastFrame)
+	{
+		OnTargetingPlayerStatusChanged.Broadcast(bHitPlayer);
+	}
+	
+	bHitPlayerLastFrame = bHitPlayer;
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

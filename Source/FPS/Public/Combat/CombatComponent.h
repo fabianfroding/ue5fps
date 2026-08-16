@@ -14,6 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReticleChanged, UMaterialInstanceD
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAmmoCounterChanged, UMaterialInstanceDynamic*, AmmoCounterDynMatInst, int32, RoundsCurrent, int32, RoundsMax);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRoundFired, int32, RoundsCurrent, int32, RoundsMax);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAimingStatusChanged, bool, bIsAiming);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTargetingPlayerStatusChanged, bool, bIsTargetingPlayer);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPS_API UCombatComponent : public UActorComponent
@@ -39,6 +40,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FAimingStatusChanged OnAimingStatusChanged;
 	
+	UPROPERTY(BlueprintAssignable)
+	FTargetingPlayerStatusChanged OnTargetingPlayerStatusChanged;
+	
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon)
 	AWeapon* CurrentWeapon;
@@ -55,6 +59,7 @@ private:
 	
 	bool bTriggerPressed;
 	FTimerHandle FireTimer;
+	bool bHitPlayerLastFrame;
 
 public:
 	UCombatComponent();
@@ -102,5 +107,7 @@ private:
 	void Local_FireWeapon();
 	
 	void FireTimerFinished();
+	
+	void TraceForPlayer();
 	
 };

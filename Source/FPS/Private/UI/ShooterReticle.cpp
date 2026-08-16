@@ -17,6 +17,7 @@ namespace Reticle
 {
 	const FName RoundedCornerScale = FName("RoundedCornerScale");
 	const FName ShapeCutThickness = FName("ShapeCutThickness");
+	const FName InnerRGBA = FName("Inner_RGBA");
 }
 
 void UShooterReticle::NativeOnInitialized()
@@ -30,6 +31,7 @@ void UShooterReticle::NativeOnInitialized()
 	BaseCornerScaleFactorAiming = 0.f;
 	BaseShapeCutFactorAiming = 0.f;
 	bAiming = false;
+	bTargetingPlayer = false;
 	
 	GetOwningPlayer()->OnPossessedPawnChanged.AddDynamic(this, &ThisClass::OnPossessedPawnChanged);
 	
@@ -98,6 +100,7 @@ void UShooterReticle::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 		OldPawnCombatComponent->OnAmmoCounterChanged.RemoveDynamic(this, &ThisClass::OnAmmoCounterChanged);
 		OldPawnCombatComponent->OnRoundFired.RemoveDynamic(this, &ThisClass::OnRoundFired);
 		OldPawnCombatComponent->OnAimingStatusChanged.RemoveDynamic(this, &ThisClass::OnAimingStatusChanged);
+		OldPawnCombatComponent->OnTargetingPlayerStatusChanged.RemoveDynamic(this, &ThisClass::OnTargetingPlayerStatusChanged);
 	}
 	if (IsValid(NewPawnCombatComponent))
 	{
@@ -107,6 +110,7 @@ void UShooterReticle::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 		NewPawnCombatComponent->OnAmmoCounterChanged.AddDynamic(this, &ThisClass::OnAmmoCounterChanged);
 		NewPawnCombatComponent->OnRoundFired.AddDynamic(this, &ThisClass::OnRoundFired);
 		NewPawnCombatComponent->OnAimingStatusChanged.AddDynamic(this, &ThisClass::OnAimingStatusChanged);
+		NewPawnCombatComponent->OnTargetingPlayerStatusChanged.AddDynamic(this, &ThisClass::OnTargetingPlayerStatusChanged);
 	}
 }
 
@@ -146,9 +150,14 @@ void UShooterReticle::OnRoundFired(int32 RoundsCurrent, int32 RoundsMax)
 	BaseShapeCutFactorRoundFired += CurrentReticleParams.ShapeCutFactorRoundFired;
 }
 
-void UShooterReticle::OnAimingStatusChanged(bool bIsAiming)
+void UShooterReticle::OnTargetingPlayerStatusChanged(bool bIsTargetingPlayer)
 {
-	bAiming = bIsAiming;
+	bTargetingPlayer = bIsTargetingPlayer;
+	if (CurrentReticleDynMatInst.IsValid())
+	{
+		const FLinearColor ReticleColor = bTargetingPlayer ? FLinearColor::Red : FLinearColor::White;
+		CurrentReticleDynMatInst->SetVectorParameterValue(Reticle::InnerRGBA, ReticleColor);
+	}
 }
 
 void UShooterReticle::UpdateReticleAndAmmoCounter(AWeapon* Weapon)
