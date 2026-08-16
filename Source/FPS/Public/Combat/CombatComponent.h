@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include <Components/ActorComponent.h>
 
+#include "GameplayTagContainer.h"
 #include "CombatComponent.generated.h"
 
 class AWeapon;
@@ -15,6 +16,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAmmoCounterChanged, UMaterialIns
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRoundFired, int32, RoundsCurrent, int32, RoundsMax);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAimingStatusChanged, bool, bIsAiming);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTargetingPlayerStatusChanged, bool, bIsTargetingPlayer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCurrentReserveAmmoChanged, int32, RoundsInReserve, int32, RoundsInWeapon);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPS_API UCombatComponent : public UActorComponent
@@ -27,6 +29,9 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool bAiming;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_CurrentReserveAmmo)
+	int32 CurrentReserveAmmo;
 	
 	UPROPERTY(BlueprintAssignable)
 	FReticleChanged OnReticleChanged;
@@ -43,6 +48,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FTargetingPlayerStatusChanged OnTargetingPlayerStatusChanged;
 	
+	UPROPERTY(BlueprintAssignable)
+	FCurrentReserveAmmoChanged OnCurrentReserveAmmoChanged;
+	
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentWeapon)
 	AWeapon* CurrentWeapon;
@@ -56,6 +64,8 @@ private:
 	
 	UPROPERTY(Transient, Replicated) // Transient - can not save to disk.
 	TArray<AWeapon*> WeaponInventory;
+	
+	TMap<FGameplayTag, int32> ReserveAmmo;
 	
 	bool bTriggerPressed;
 	FTimerHandle FireTimer;
@@ -85,6 +95,7 @@ public:
 	void InitializeWeaponWidgets() const;
 	
 	AWeapon* GetCurrentWeapon() const { return CurrentWeapon; }
+	bool IsTargetingPlayer() const { return bHitPlayer; }
 	
 private:
 	AWeapon* SpawnWeapon(TSubclassOf<AWeapon> WeaponClass) const;
@@ -104,6 +115,9 @@ private:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_FireWeapon(const FHitResult& Hit, const int32 AuthAmmo);
+	
+	UFUNCTION()
+	void OnRep_CurrentReserveAmmo();
 	
 	void Local_FireWeapon();
 	

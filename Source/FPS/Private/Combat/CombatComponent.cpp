@@ -68,6 +68,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, WeaponInventory);
 	DOREPLIFETIME(UCombatComponent, CurrentWeapon);
 	DOREPLIFETIME_CONDITION(UCombatComponent, bAiming, COND_SkipOwner); // Already set locally, no need to replicate for owner.
+	DOREPLIFETIME_CONDITION(UCombatComponent, CurrentReserveAmmo, COND_OwnerOnly);
 }
 
 void UCombatComponent::InitiateCycleWeapon()
@@ -84,6 +85,12 @@ void UCombatComponent::InitiateFireWeaponPressed()
 	{
 		Local_FireWeapon();
 	}
+}
+
+void UCombatComponent::OnRep_CurrentReserveAmmo()
+{
+	if (!IsValid(CurrentWeapon)) return;
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo);
 }
 
 void UCombatComponent::Local_FireWeapon()
@@ -200,6 +207,7 @@ void UCombatComponent::SpawnWeaponInventory()
 	{
 		AWeapon* Weapon = SpawnWeapon(WeaponClass);
 		WeaponInventory.AddUnique(Weapon);
+		ReserveAmmo.Add(Weapon->GetWeaponType(), Weapon->StartingCarriedAmmo);
 	}
 	
 	if (WeaponInventory.Num() > 0)
@@ -224,6 +232,9 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	CurrentWeapon = WeaponToEquip;
 	CurrentWeapon->AttachToOwningPawn();
+	
+	CurrentReserveAmmo = ReserveAmmo.FindChecked(CurrentWeapon->GetWeaponType());
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo);
 }
 
 void UCombatComponent::InitializeWeaponWidgets() const

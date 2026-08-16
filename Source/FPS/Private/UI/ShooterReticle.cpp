@@ -172,6 +172,12 @@ void UShooterReticle::OnTargetingPlayerStatusChanged(bool bIsTargetingPlayer)
 void UShooterReticle::UpdateReticleAndAmmoCounter(AWeapon* Weapon)
 {
 	if (!IsValid(Weapon)) return;
-	OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams);
+
+	const APawn* OwningPawn = Cast<AShooterCharacter>(GetOwningPlayerPawn());
+	if (!OwningPawn) return;
+	const UCombatComponent* CombatComponent = OwningPawn->FindComponentByClass<UCombatComponent>();
+	if (!CombatComponent) return;
+	
+	OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams, CombatComponent->IsTargetingPlayer());
 	OnAmmoCounterChanged(Weapon->GetAmmoCounterDynamicMaterialInstance(), Weapon->Ammo, Weapon->MagCapacity);
 }
