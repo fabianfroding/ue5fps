@@ -69,6 +69,11 @@ AWeapon* AShooterCharacter::GetCurrentWeapon_Implementation()
 	return CombatComponent->GetCurrentWeapon();
 }
 
+int32 AShooterCharacter::GetReserveAmmo_Implementation() const
+{
+	return CombatComponent->CurrentReserveAmmo;
+}
+
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();

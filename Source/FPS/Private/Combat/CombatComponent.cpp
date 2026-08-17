@@ -113,7 +113,7 @@ void UCombatComponent::Local_FireWeapon()
 	
 	GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, CurrentWeapon->FireTime);
 	
-	OnRoundFired.Broadcast(CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+	OnRoundFired.Broadcast(CurrentWeapon->Ammo, CurrentWeapon->MagCapacity, CurrentReserveAmmo);
 	Server_FireWeapon(Hit);
 }
 

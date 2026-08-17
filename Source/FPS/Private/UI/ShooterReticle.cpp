@@ -150,7 +150,7 @@ void UShooterReticle::OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounter
 	}
 }
 
-void UShooterReticle::OnRoundFired(int32 RoundsCurrent, int32 RoundsMax)
+void UShooterReticle::OnRoundFired(int32 RoundsCurrent, int32 RoundsMax, int32 RoundsInReserve)
 {
 	if (!CurrentAmmoCounterDynMatInst.IsValid()) return;
 	CurrentAmmoCounterDynMatInst->SetScalarParameterValue(Ammo::Rounds_Current, RoundsCurrent);
