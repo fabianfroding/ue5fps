@@ -41,6 +41,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "FPS|Reticle")
 	FReticleParams ReticleParams;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "FPS|Icon")
+	TObjectPtr<UMaterialInterface> WeaponIcon;
+	
 protected:
 	// Weapon mesh first-person view.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Weapon")

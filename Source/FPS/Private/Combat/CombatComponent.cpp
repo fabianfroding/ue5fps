@@ -90,7 +90,7 @@ void UCombatComponent::InitiateFireWeaponPressed()
 void UCombatComponent::OnRep_CurrentReserveAmmo()
 {
 	if (!IsValid(CurrentWeapon)) return;
-	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo);
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
 }
 
 void UCombatComponent::Local_FireWeapon()
@@ -234,7 +234,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	CurrentWeapon->AttachToOwningPawn();
 	
 	CurrentReserveAmmo = ReserveAmmo.FindChecked(CurrentWeapon->GetWeaponType());
-	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo);
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
 }
 
 void UCombatComponent::InitializeWeaponWidgets() const

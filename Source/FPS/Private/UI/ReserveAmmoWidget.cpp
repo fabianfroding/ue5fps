@@ -26,7 +26,7 @@ void UReserveAmmoWidget::NativeOnInitialized()
 	{
 		if (const AWeapon* Weapon = IPlayerInterface::Execute_GetCurrentWeapon(ShooterCharacter); IsValid(Weapon))
 		{
-			OnCurrentReserveAmmoChanged(IPlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo);
+			OnCurrentReserveAmmoChanged(IPlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo, Weapon->WeaponIcon);
 		}
 	}
 	else
@@ -38,7 +38,7 @@ void UReserveAmmoWidget::NativeOnInitialized()
 	{
 		if (AWeapon* Weapon = IPlayerInterface::Execute_GetCurrentWeapon(ShooterCharacter); IsValid(Weapon))
 		{
-			OnCurrentReserveAmmoChanged(IPlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo);
+			OnCurrentReserveAmmoChanged(IPlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo, Weapon->WeaponIcon);
 		}
 	}
 }
@@ -61,9 +61,14 @@ void UReserveAmmoWidget::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 	}
 }
 
-void UReserveAmmoWidget::OnCurrentReserveAmmoChanged(int32 RoundsInReserve, int32 RoundsInWeapon)
+void UReserveAmmoWidget::OnCurrentReserveAmmoChanged(int32 RoundsInReserve, int32 RoundsInWeapon, UMaterialInterface* WeaponIconMaterial)
 {
-	// TODO: Change weapon icon.
+	if (IsValid(WeaponIconMaterial) && IsValid(ImageWeaponIcon))
+	{
+		FSlateBrush Brush;
+		Brush.SetResourceObject(WeaponIconMaterial);
+		ImageWeaponIcon->SetBrush(Brush);
+	}
 	
 	// RoundsInWeapon / RoundsInReserve
 	if (IsValid(TextAmmo))
@@ -87,5 +92,5 @@ void UReserveAmmoWidget::OnWeaponFirstReplicated(AWeapon* Weapon)
 {
 	const AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(GetOwningPlayer()->GetPawn());
 	if (!IsValid(ShooterCharacter)) return;
-	OnCurrentReserveAmmoChanged(IPlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo);
+	OnCurrentReserveAmmoChanged(IPlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo, Weapon->WeaponIcon);
 }
