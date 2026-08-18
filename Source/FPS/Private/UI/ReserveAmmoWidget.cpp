@@ -33,6 +33,14 @@ void UReserveAmmoWidget::NativeOnInitialized()
 	{
 		ShooterCharacter->OnWeaponFirstReplicated.AddDynamic(this, &ThisClass::OnWeaponFirstReplicated);
 	}
+	
+	if (ShooterCharacter->HasAuthority())
+	{
+		if (AWeapon* Weapon = IPlayerInterface::Execute_GetCurrentWeapon(ShooterCharacter); IsValid(Weapon))
+		{
+			OnCurrentReserveAmmoChanged(IPlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo);
+		}
+	}
 }
 
 void UReserveAmmoWidget::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
@@ -70,7 +78,7 @@ void UReserveAmmoWidget::OnRoundFired(int32 RoundsCurrent, int32 RoundsMax, int3
 {
 	if (IsValid(TextAmmo))
 	{
-		const FText AmmoText = FText::Format(NSLOCTEXT("AmmoText", "AmmoKey", "{0}/{1}}"), RoundsCurrent, RoundsInReserve);
+		const FText AmmoText = FText::Format(NSLOCTEXT("AmmoText", "AmmoKey", "{0}/{1}"), RoundsCurrent, RoundsInReserve);
 		TextAmmo->SetText(AmmoText);
 	}
 }
