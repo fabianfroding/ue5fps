@@ -18,6 +18,8 @@ UCombatComponent::UCombatComponent()
 	bTriggerPressed = false;
 	bHitPlayerLastFrame = false;
 	bHitPlayer = false;
+	
+	LocalWeaponIndex = 0;
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -62,6 +64,15 @@ void UCombatComponent::TraceForPlayer()
 	bHitPlayerLastFrame = bHitPlayer;
 }
 
+int32 UCombatComponent::AdvanceWeaponIndex()
+{
+	if (WeaponInventory.Num() >= 2)
+	{
+		LocalWeaponIndex = (LocalWeaponIndex + 1) % WeaponInventory.Num(); // Math for wrapping back to index 0 if reaching end of array.
+	}
+	return LocalWeaponIndex;
+}
+
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -73,7 +84,12 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void UCombatComponent::InitiateCycleWeapon()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateCycleWeapon"), false);
+	if (!IsValid(CurrentWeapon)) return;
+	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Cycling) return;
+	
+	AdvanceWeaponIndex();
+	// LocalCycleWeapon(WeaponIndex)
+	// ServerCycleWeapon(WeaponIndex)
 }
 
 void UCombatComponent::InitiateFireWeaponPressed()

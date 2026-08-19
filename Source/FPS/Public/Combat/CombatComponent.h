@@ -71,6 +71,8 @@ private:
 	FTimerHandle FireTimer;
 	bool bHitPlayerLastFrame;
 	bool bHitPlayer;
+	
+	int32 LocalWeaponIndex;
 
 public:
 	UCombatComponent();
@@ -124,5 +126,7 @@ private:
 	void FireTimerFinished();
 	
 	void TraceForPlayer();
+	
+	int32 AdvanceWeaponIndex();
 	
 };

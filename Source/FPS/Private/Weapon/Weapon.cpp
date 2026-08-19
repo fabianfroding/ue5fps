@@ -35,6 +35,7 @@ AWeapon::AWeapon()
 	Ammo = 5;
 	StartingCarriedAmmo = 10;
 	AmmoSequence = 0;
+	WeaponStatus = EWeaponStatus::Unequipped;
 }
 
 void AWeapon::BeginPlay()
