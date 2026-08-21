@@ -94,7 +94,6 @@ private:
 
 public:
 	AWeapon();
-	virtual void OnRep_Instigator() override;
 	
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	USkeletalMeshComponent* GetMesh3P() const { return Mesh3P; }
@@ -102,7 +101,7 @@ public:
 	UMaterialInstanceDynamic* GetReticleDynamicMaterialInstance();
 	UMaterialInstanceDynamic* GetAmmoCounterDynamicMaterialInstance();
 	
-	void AttachToOwningPawn() const;
+	void AttachToOwningPawn(APawn* Pawn) const;
 	void WeaponTrace(FHitResult& OutHit, const float TraceLength);
 	
 	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, const TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, const bool bIsFirstPerson);

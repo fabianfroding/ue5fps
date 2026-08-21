@@ -88,8 +88,49 @@ void UCombatComponent::InitiateCycleWeapon()
 	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Cycling) return;
 	
 	AdvanceWeaponIndex();
-	// LocalCycleWeapon(WeaponIndex)
+	LocalCycleWeapon(LocalWeaponIndex);
 	// ServerCycleWeapon(WeaponIndex)
+}
+
+void UCombatComponent::LocalCycleWeapon(const int32 WeaponIndex)
+{
+	AWeapon* NextWeapon = WeaponInventory[WeaponIndex];
+	if (!IsValid(NextWeapon) || !IsValid(WeaponData)) return;
+	
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Cycling;
+	NextWeapon->WeaponStatus = EWeaponStatus::Cycling;
+
+	const APawn* OwningPawn = Cast<APawn>(GetOwner());
+	const bool bIsLocal = IsValid(OwningPawn) && OwningPawn->IsLocallyControlled();
+	
+	const FMontageData& MontageData = bIsLocal ? WeaponData->FirstPersonMontages.FindChecked(NextWeapon->GetWeaponType()) : WeaponData->ThirdPersonMontages.FindChecked(NextWeapon->GetWeaponType());
+	USkeletalMeshComponent* Mesh = bIsLocal ? IPlayerInterface::Execute_GetMesh1P(OwningPawn) : IPlayerInterface::Execute_GetMesh3P(OwningPawn);
+	if (IsValid(Mesh) && IsValid(MontageData.EquipMontage))
+	{
+		Mesh->GetAnimInstance()->Montage_Play(MontageData.EquipMontage);
+	}
+	
+	if (bIsLocal)
+	{
+		ServerCycleWeapon(WeaponIndex);
+	}
+}
+
+void UCombatComponent::ServerCycleWeapon_Implementation(const int32 WeaponIndex)
+{
+	LocalWeaponIndex = WeaponIndex;
+	MulticastCycleWeapon(WeaponIndex);
+}
+
+void UCombatComponent::MulticastCycleWeapon_Implementation(const int32 WeaponIndex)
+{
+	const APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(OwningPawn)) return;
+	if (!OwningPawn->IsLocallyControlled())
+	{
+		LocalWeaponIndex = WeaponIndex;
+		LocalCycleWeapon(WeaponIndex);
+	}
 }
 
 void UCombatComponent::InitiateFireWeaponPressed()
@@ -247,7 +288,7 @@ void UCombatComponent::DestroyWeaponInventory()
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	CurrentWeapon = WeaponToEquip;
-	CurrentWeapon->AttachToOwningPawn();
+	CurrentWeapon->AttachToOwningPawn(Cast<APawn>(GetOwner()));
 	
 	CurrentReserveAmmo = ReserveAmmo.FindChecked(CurrentWeapon->GetWeaponType());
 	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
@@ -279,7 +320,7 @@ AWeapon* UCombatComponent::SpawnWeapon(TSubclassOf<AWeapon> WeaponClass) const
 void UCombatComponent::OnRep_CurrentWeapon(AWeapon* LastWeapon)
 {
 	if (!IsValid(CurrentWeapon)) return;
-	CurrentWeapon->AttachToOwningPawn();
+	CurrentWeapon->AttachToOwningPawn(Cast<APawn>(GetOwner()));
 	IPlayerInterface::Execute_WeaponReplicated(GetOwner());
 	InitializeWeaponWidgets();
 }

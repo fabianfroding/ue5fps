@@ -43,14 +43,6 @@ void AWeapon::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AWeapon::OnRep_Instigator()
-{
-	// DEV NOTE: Sometimes the order of replication is not deterministic, so even though we have attachment in the OnRep of CurrentWeapon, we still want to do this here as well just in case.
-	
-	Super::OnRep_Instigator();
-	AttachToOwningPawn();
-}
-
 UMaterialInstanceDynamic* AWeapon::GetReticleDynamicMaterialInstance()
 {
 	if (!IsValid(ReticleDynMatInst))
@@ -69,16 +61,17 @@ UMaterialInstanceDynamic* AWeapon::GetAmmoCounterDynamicMaterialInstance()
 	return AmmoCounterDynMatInst;
 }
 
-void AWeapon::AttachToOwningPawn() const
+void AWeapon::AttachToOwningPawn(APawn* Pawn) const
 {
-	APawn* OwningPawn = GetInstigator<APawn>();
-	if (!IsValid(OwningPawn) || !OwningPawn->Implements<UPlayerInterface>()) return;
 	
-	SetMeshVisibilities(OwningPawn);
+	Pawn = GetInstigator<APawn>();
+	if (!IsValid(Pawn) || !Pawn->Implements<UPlayerInterface>()) return;
 	
-	const FName AttachPoint = IPlayerInterface::Execute_GetWeaponAttachPoint(OwningPawn, WeaponType);
-	USkeletalMeshComponent* PawnMesh1P = IPlayerInterface::Execute_GetMesh1P(OwningPawn);
-	USkeletalMeshComponent* PawnMesh3P = IPlayerInterface::Execute_GetMesh3P(OwningPawn);
+	SetMeshVisibilities(Pawn);
+	
+	const FName AttachPoint = IPlayerInterface::Execute_GetWeaponAttachPoint(Pawn, WeaponType);
+	USkeletalMeshComponent* PawnMesh1P = IPlayerInterface::Execute_GetMesh1P(Pawn);
+	USkeletalMeshComponent* PawnMesh3P = IPlayerInterface::Execute_GetMesh3P(Pawn);
 	
 	Mesh1P->AttachToComponent(PawnMesh1P, FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
 	Mesh3P->AttachToComponent(PawnMesh3P, FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
