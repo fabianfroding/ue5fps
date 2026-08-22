@@ -157,6 +157,16 @@ void UCombatComponent::BlendOutCycleWeapon(UAnimMontage* Montage, bool bInterrup
 	}
 	
 	CurrentWeapon->WeaponStatus = EWeaponStatus::Idle;
+	
+	OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamicMaterialInstance(), CurrentWeapon->ReticleParams, bHitPlayer);
+	OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamicMaterialInstance(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
+	
+	// If holding fire trigger, continue fire from new weapon.
+	if (bTriggerPressed && CurrentWeapon->FireType == EFireType::Auto && CurrentWeapon->Ammo > 0)
+	{
+		Local_FireWeapon();
+	}
 }
 
 void UCombatComponent::InitiateFireWeaponPressed()
@@ -164,7 +174,7 @@ void UCombatComponent::InitiateFireWeaponPressed()
 	if (!IsValid(CurrentWeapon)) return;
 	bTriggerPressed = true;
 	
-	if (CurrentWeapon->Ammo > 0)
+	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Idle && CurrentWeapon->Ammo > 0)
 	{
 		Local_FireWeapon();
 	}
