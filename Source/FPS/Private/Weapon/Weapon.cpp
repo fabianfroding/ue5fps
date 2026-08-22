@@ -63,8 +63,6 @@ UMaterialInstanceDynamic* AWeapon::GetAmmoCounterDynamicMaterialInstance()
 
 void AWeapon::AttachToOwningPawn(APawn* Pawn) const
 {
-	
-	Pawn = GetInstigator<APawn>();
 	if (!IsValid(Pawn) || !Pawn->Implements<UPlayerInterface>()) return;
 	
 	SetMeshVisibilities(Pawn);
