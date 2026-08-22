@@ -91,6 +91,8 @@ public:
 	void InitiateAimPressed();
 	void InitiateAimReleased();
 	
+	void NotifyCycleWeapon();
+	
 	void SpawnWeaponInventory();
 	void DestroyWeaponInventory();
 	void EquipWeapon(AWeapon* WeaponToEquip);
@@ -136,5 +138,8 @@ private:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastCycleWeapon(const int32 WeaponIndex);
+	
+	UFUNCTION()
+	void BlendOutCycleWeapon(UAnimMontage* Montage, bool bInterrupted);
 	
 };

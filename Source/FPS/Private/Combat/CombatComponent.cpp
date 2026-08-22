@@ -89,7 +89,6 @@ void UCombatComponent::InitiateCycleWeapon()
 	
 	AdvanceWeaponIndex();
 	LocalCycleWeapon(LocalWeaponIndex);
-	// ServerCycleWeapon(WeaponIndex)
 }
 
 void UCombatComponent::LocalCycleWeapon(const int32 WeaponIndex)
@@ -104,7 +103,7 @@ void UCombatComponent::LocalCycleWeapon(const int32 WeaponIndex)
 	const bool bIsLocal = IsValid(OwningPawn) && OwningPawn->IsLocallyControlled();
 	
 	const FMontageData& MontageData = bIsLocal ? WeaponData->FirstPersonMontages.FindChecked(NextWeapon->GetWeaponType()) : WeaponData->ThirdPersonMontages.FindChecked(NextWeapon->GetWeaponType());
-	USkeletalMeshComponent* Mesh = bIsLocal ? IPlayerInterface::Execute_GetMesh1P(OwningPawn) : IPlayerInterface::Execute_GetMesh3P(OwningPawn);
+	const USkeletalMeshComponent* Mesh = bIsLocal ? IPlayerInterface::Execute_GetMesh1P(OwningPawn) : IPlayerInterface::Execute_GetMesh3P(OwningPawn);
 	if (IsValid(Mesh) && IsValid(MontageData.EquipMontage))
 	{
 		Mesh->GetAnimInstance()->Montage_Play(MontageData.EquipMontage);
@@ -113,8 +112,14 @@ void UCombatComponent::LocalCycleWeapon(const int32 WeaponIndex)
 	if (bIsLocal)
 	{
 		ServerCycleWeapon(WeaponIndex);
+		if (UAnimInstance* AnimInstance = Mesh->GetAnimInstance(); IsValid(AnimInstance))
+		{
+			AnimInstance->OnMontageBlendingOut.AddDynamic(this, &ThisClass::BlendOutCycleWeapon);
+		}
 	}
 }
+
+
 
 void UCombatComponent::ServerCycleWeapon_Implementation(const int32 WeaponIndex)
 {
@@ -131,6 +136,24 @@ void UCombatComponent::MulticastCycleWeapon_Implementation(const int32 WeaponInd
 		LocalWeaponIndex = WeaponIndex;
 		LocalCycleWeapon(WeaponIndex);
 	}
+}
+
+void UCombatComponent::NotifyCycleWeapon()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("UCombatComponent::NotifyCycleWeapon"), false);
+}
+
+void UCombatComponent::BlendOutCycleWeapon(UAnimMontage* Montage, bool bInterrupted)
+{
+	UAnimInstance* AnimInstance = IPlayerInterface::Execute_GetMesh1P(GetOwner())->GetAnimInstance();
+	if (IsValid(AnimInstance) && AnimInstance->OnMontageBlendingOut.IsAlreadyBound(this, &ThisClass::BlendOutCycleWeapon))
+	{
+		AnimInstance->OnMontageBlendingOut.RemoveDynamic(this, &ThisClass::BlendOutCycleWeapon);
+	}
+	
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Idle;
+	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("UCombatComponent::BlendOutCycleWeapon"), false);
 }
 
 void UCombatComponent::InitiateFireWeaponPressed()

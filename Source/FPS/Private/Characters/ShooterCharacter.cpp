@@ -74,6 +74,11 @@ int32 AShooterCharacter::GetReserveAmmo_Implementation() const
 	return CombatComponent->CurrentReserveAmmo;
 }
 
+void AShooterCharacter::NotifyCycleWeapon_Implementation()
+{
+	CombatComponent->NotifyCycleWeapon();
+}
+
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
