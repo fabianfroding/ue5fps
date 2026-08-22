@@ -95,7 +95,10 @@ public:
 	
 	void SpawnWeaponInventory();
 	void DestroyWeaponInventory();
-	void EquipWeapon(AWeapon* WeaponToEquip);
+	void Equip(AWeapon* WeaponToEquip);
+	
+	void EquipWeapon(AWeapon* Weapon);
+	
 	void InitializeWeaponWidgets() const;
 	
 	AWeapon* GetCurrentWeapon() const { return CurrentWeapon; }
@@ -141,5 +144,10 @@ private:
 	
 	UFUNCTION()
 	void BlendOutCycleWeapon(UAnimMontage* Montage, bool bInterrupted);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeapon(AWeapon* Weapon);
+	
+	void SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon);
 	
 };

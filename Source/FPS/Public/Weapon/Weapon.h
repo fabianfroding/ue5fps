@@ -102,6 +102,7 @@ public:
 	UMaterialInstanceDynamic* GetAmmoCounterDynamicMaterialInstance();
 	
 	void AttachToOwningPawn(APawn* Pawn) const;
+	void DetachFromOwningPawn();
 	void WeaponTrace(FHitResult& OutHit, const float TraceLength);
 	
 	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, const TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, const bool bIsFirstPerson);
