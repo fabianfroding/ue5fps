@@ -230,6 +230,7 @@ void UCombatComponent::FireTimerFinished()
 void UCombatComponent::Server_FireWeapon_Implementation(const FHitResult& Hit)
 {
 	if (!IsValid(CurrentWeapon)) return;
+	if (CurrentWeapon->Ammo <= 0) return; // Server-side validation.
 	
 	// Part of client-side prediction.
 	// If listen server and is locally controlled = host -> skip ammo prediction.
