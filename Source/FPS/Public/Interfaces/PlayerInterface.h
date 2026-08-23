@@ -42,4 +42,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void NotifyCycleWeapon();
 	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void NotifyReloadWeapon();
+	
 };

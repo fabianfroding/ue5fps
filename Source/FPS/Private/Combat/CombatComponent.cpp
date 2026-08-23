@@ -148,6 +148,43 @@ void UCombatComponent::NotifyCycleWeapon()
 	}
 }
 
+void UCombatComponent::NotifyReloadWeapon()
+{
+	if (!IsValid(CurrentWeapon)) return;
+	
+	if (GetNetMode() == NM_DedicatedServer || GetNetMode() == NM_ListenServer || GetNetMode() == NM_Standalone)
+	{
+		const int32 EmptySpace = CurrentWeapon->MagCapacity - CurrentWeapon->Ammo;
+		const int32 AmountToRefill = FMath::Min(EmptySpace, CurrentReserveAmmo);
+		CurrentWeapon->Ammo += AmountToRefill;
+		ReserveAmmo[CurrentWeapon->GetWeaponType()] -= AmountToRefill;
+		CurrentReserveAmmo = ReserveAmmo[CurrentWeapon->GetWeaponType()];
+		ClientReloadWeapon(CurrentWeapon->Ammo, CurrentReserveAmmo);
+	}
+	
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Idle;
+	
+	// Continue weapon fire after reload finish.
+	if (bTriggerPressed && CurrentWeapon->Ammo > 0)
+	{
+		Local_FireWeapon();
+	}
+}
+
+void UCombatComponent::ClientReloadWeapon_Implementation(const int32 NewWeaponAmmo, const int32 NewCarriedAmmo)
+{
+	const APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(CurrentWeapon) || !IsValid(OwningPawn)) return;
+	
+	if (OwningPawn->IsLocallyControlled())
+	{
+		CurrentWeapon->Ammo = NewWeaponAmmo;
+		CurrentReserveAmmo = NewCarriedAmmo;
+		OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamicMaterialInstance(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+		OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
+	}
+}
+
 void UCombatComponent::BlendOutCycleWeapon(UAnimMontage* Montage, bool bInterrupted)
 {
 	UAnimInstance* AnimInstance = IPlayerInterface::Execute_GetMesh1P(GetOwner())->GetAnimInstance();
@@ -310,10 +347,10 @@ void UCombatComponent::LocalReloadWeapon()
 
 void UCombatComponent::ServerReloadWeapon_Implementation()
 {
-	MulticastReloadWeapon(CurrentWeapon->Ammo, CurrentReserveAmmo);
+	MulticastReloadWeapon();
 }
 
-void UCombatComponent::MulticastReloadWeapon_Implementation(const int32 NewWeaponAmmo, const int32 NewCarriedAmmo)
+void UCombatComponent::MulticastReloadWeapon_Implementation()
 {
 	LocalReloadWeapon();
 }

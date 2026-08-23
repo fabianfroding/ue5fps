@@ -92,6 +92,7 @@ public:
 	void InitiateAimReleased();
 	
 	void NotifyCycleWeapon();
+	void NotifyReloadWeapon();
 	
 	void SpawnWeaponInventory();
 	void DestroyWeaponInventory();
@@ -155,7 +156,10 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerReloadWeapon();
 	
+	UFUNCTION(Client, Reliable)
+	void ClientReloadWeapon(const int32 NewWeaponAmmo, const int32 NewCarriedAmmo);
+	
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastReloadWeapon(const int32 NewWeaponAmmo, const int32 NewCarriedAmmo);
+	void MulticastReloadWeapon();
 	
 };

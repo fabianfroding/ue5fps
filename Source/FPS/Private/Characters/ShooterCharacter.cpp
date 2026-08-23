@@ -79,6 +79,11 @@ void AShooterCharacter::NotifyCycleWeapon_Implementation()
 	CombatComponent->NotifyCycleWeapon();
 }
 
+void AShooterCharacter::NotifyReloadWeapon_Implementation()
+{
+	CombatComponent->NotifyReloadWeapon();
+}
+
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();

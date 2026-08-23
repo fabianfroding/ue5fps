@@ -74,7 +74,7 @@ void UReserveAmmoWidget::OnCurrentReserveAmmoChanged(int32 RoundsInReserve, int3
 	if (IsValid(TextAmmo))
 	{
 		// DEV NOTE: NSLOCTEXT - Automatic localization for texts.
-		const FText AmmoText = FText::Format(NSLOCTEXT("AmmoText", "AmmoKey", "{0}/{1}}"), RoundsInWeapon, RoundsInReserve);
+		const FText AmmoText = FText::Format(NSLOCTEXT("AmmoText", "AmmoKey", "{0}/{1}"), RoundsInWeapon, RoundsInReserve);
 		TextAmmo->SetText(AmmoText);
 	}
 }

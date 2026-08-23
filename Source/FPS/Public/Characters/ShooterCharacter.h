@@ -113,6 +113,7 @@ public:
 	virtual AWeapon* GetCurrentWeapon_Implementation() override;
 	virtual int32 GetReserveAmmo_Implementation() const override;
 	virtual void NotifyCycleWeapon_Implementation() override;
+	virtual void NotifyReloadWeapon_Implementation() override;
 	/* ~PlayerInterface */
 	
 protected:
