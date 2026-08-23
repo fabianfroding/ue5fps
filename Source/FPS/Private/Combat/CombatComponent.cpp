@@ -191,6 +191,8 @@ void UCombatComponent::Local_FireWeapon()
 	if (!IsValid(CurrentWeapon)) return;
 	ensure(IsValid(WeaponData));
 	
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Firing;
+	
 	UAnimMontage* Montage1P = WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).FireMontage;
 	const USkeletalMeshComponent* Mesh1P = IPlayerInterface::Execute_GetMesh1P(GetOwner());
 	if (IsValid(Montage1P) && IsValid(Mesh1P))
@@ -213,9 +215,13 @@ void UCombatComponent::Local_FireWeapon()
 void UCombatComponent::FireTimerFinished()
 {
 	if (!IsValid(CurrentWeapon)) return;
-	if (bTriggerPressed && 
-		CurrentWeapon->FireType == EFireType::Auto && 
-		CurrentWeapon->Ammo > 0)
+	
+	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Firing)
+	{
+		CurrentWeapon->WeaponStatus = EWeaponStatus::Idle;
+	}
+	
+	if (bTriggerPressed && CurrentWeapon->FireType == EFireType::Auto && CurrentWeapon->Ammo > 0)
 	{
 		Local_FireWeapon();
 	}
