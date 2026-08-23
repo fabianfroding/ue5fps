@@ -150,4 +150,12 @@ private:
 	
 	void SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon);
 	
+	void LocalReloadWeapon();
+	
+	UFUNCTION(Server, Reliable)
+	void ServerReloadWeapon();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastReloadWeapon(const int32 NewWeaponAmmo, const int32 NewCarriedAmmo);
+	
 };

@@ -273,7 +273,49 @@ void UCombatComponent::InitiateFireWeaponReleased()
 
 void UCombatComponent::InitiateReloadWeapon()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("InitiateReloadWeapon"), false);
+	if (!IsValid(CurrentWeapon)) return;
+	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Cycling || CurrentWeapon->WeaponStatus == EWeaponStatus::Reloading) return;
+	if (CurrentWeapon->Ammo == CurrentWeapon->MagCapacity) return;
+	if (CurrentReserveAmmo == 0) return;
+	
+	LocalReloadWeapon();
+	ServerReloadWeapon();
+}
+
+void UCombatComponent::LocalReloadWeapon()
+{
+	const APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(CurrentWeapon) || !IsValid(OwningPawn)) return;
+	ensure(WeaponData);
+	
+	const bool bIsLocal = OwningPawn->IsLocallyControlled();
+	UAnimMontage* ReloadMontage = bIsLocal 
+		? WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).ReloadMontage 
+		: WeaponData->ThirdPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).ReloadMontage;
+	const USkeletalMeshComponent* Mesh = bIsLocal ? IPlayerInterface::Execute_GetMesh1P(OwningPawn) : IPlayerInterface::Execute_GetMesh3P(OwningPawn);
+	if (IsValid(ReloadMontage) && IsValid(Mesh))
+	{
+		Mesh->GetAnimInstance()->Montage_Play(ReloadMontage);
+	}
+	
+	UAnimMontage* WeaponReloadMontage = WeaponData->WeaponMontages.FindChecked(CurrentWeapon->GetWeaponType()).ReloadMontage;
+	const USkeletalMeshComponent* WeaponMesh = bIsLocal ? CurrentWeapon->GetMesh1P() : CurrentWeapon->GetMesh3P();
+	if (IsValid(WeaponReloadMontage) && IsValid(WeaponMesh))
+	{
+		WeaponMesh->GetAnimInstance()->Montage_Play(WeaponReloadMontage);
+	}
+	
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Reloading;
+}
+
+void UCombatComponent::ServerReloadWeapon_Implementation()
+{
+	MulticastReloadWeapon(CurrentWeapon->Ammo, CurrentReserveAmmo);
+}
+
+void UCombatComponent::MulticastReloadWeapon_Implementation(const int32 NewWeaponAmmo, const int32 NewCarriedAmmo)
+{
+	LocalReloadWeapon();
 }
 
 void UCombatComponent::InitiateAimPressed()
