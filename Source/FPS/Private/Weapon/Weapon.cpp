@@ -149,7 +149,13 @@ void AWeapon::Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal
 	if (GetInstigator()->IsLocallyControlled())
 	{
 		Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
-		AmmoSequence++;
+		
+		// Condition to prevent AmmoSequence to increase when playing as ListenServer and this runs on Server (which is LocallyControlled).
+		// Same applies to Rep_Fire(). This is because server-player doesn't need client-side prediction at all.
+		if (!GetInstigator()->HasAuthority())
+		{
+			AmmoSequence++;
+		}
 	}
 }
 
@@ -160,7 +166,7 @@ void AWeapon::Auth_Fire()
 
 void AWeapon::Rep_Fire(const int32 AuthAmmo)
 {
-	if (GetInstigator()->IsLocallyControlled())
+	if (GetInstigator()->IsLocallyControlled() && !GetInstigator()->HasAuthority())
 	{
 		Ammo = AuthAmmo;
 		AmmoSequence--;
