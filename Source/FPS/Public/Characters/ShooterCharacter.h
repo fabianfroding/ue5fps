@@ -29,6 +29,9 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FWeaponFirstReplicated OnWeaponFirstReplicated;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "FPS|HitReact")
+	TArray<TObjectPtr<UAnimMontage>> HitReacts;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Combat")
@@ -129,5 +132,9 @@ private:
 	void CalculateFABRIKSocketTransform();
 	void CalculateTurnInPlaceParameters(const float DeltaTime);
 	void TurnInPlace(const float DeltaTime);
+	
+	// Could be made Unreliable to improve performance. Not going to have a significant impact unless we're dealing with very high fire rates.
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_HitReact(int32 MontageIndex);
 
 };

@@ -303,6 +303,11 @@ void UCombatComponent::Server_FireWeapon_Implementation(const FHitResult& Hit)
 	if (!IsValid(CurrentWeapon)) return;
 	if (CurrentWeapon->Ammo <= 0) return; // Server-side validation.
 	
+	if (IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<UPlayerInterface>())
+	{
+		IPlayerInterface::Execute_DoDamage(Hit.GetActor(), 0.f, GetOwner());
+	}
+	
 	// Part of client-side prediction.
 	// If listen server and is locally controlled = host -> skip ammo prediction.
 	// OR, if server and is locally controlled we already did the fire logic.
