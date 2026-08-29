@@ -92,6 +92,14 @@ void AShooterCharacter::AddAmmo_Implementation(const FGameplayTag& WeaponType, i
 	}
 }
 
+bool AShooterCharacter::DoDamage_Implementation(float Damage, AActor* DamageInstigator)
+{
+	// Change health by damage amount
+	// Play hit react
+	// Check if damage was lethal
+	return false;
+}
+
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();

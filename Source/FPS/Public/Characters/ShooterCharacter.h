@@ -115,6 +115,7 @@ public:
 	virtual void NotifyCycleWeapon_Implementation() override;
 	virtual void NotifyReloadWeapon_Implementation() override;
 	virtual void AddAmmo_Implementation(const FGameplayTag& WeaponType, int32 AmmoAmount) override;
+	virtual bool DoDamage_Implementation(float Damage, AActor* DamageInstigator) override;
 	/* ~PlayerInterface */
 	
 protected:
