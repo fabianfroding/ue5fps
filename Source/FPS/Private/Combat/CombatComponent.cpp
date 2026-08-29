@@ -171,6 +171,32 @@ void UCombatComponent::NotifyReloadWeapon()
 	}
 }
 
+void UCombatComponent::AddAmmo(const FGameplayTag& WeaponType, int32 AmmoAmount)
+{
+	if (GetOwner()->HasAuthority() && !IsValid(CurrentWeapon)) return;
+	
+	if (!ReserveAmmo.Contains(WeaponType))
+	{
+		ReserveAmmo.Add(WeaponType, AmmoAmount);
+	}
+	else
+	{
+		const int32 NewAmmo = ReserveAmmo.FindChecked(WeaponType) + AmmoAmount;
+		ReserveAmmo[WeaponType] = NewAmmo;
+		
+		if (CurrentWeapon->GetWeaponType().MatchesTagExact(WeaponType))
+		{
+			CurrentReserveAmmo = NewAmmo;
+			if (CurrentWeapon->Ammo == 0 && NewAmmo > 0)
+			{
+				ServerReloadWeapon(); // This could be a flag to toggle auto-reload empty mag on ammo-pickup.
+			}
+			OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamicMaterialInstance(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+			OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
+		}
+	}
+}
+
 void UCombatComponent::ClientReloadWeapon_Implementation(const int32 NewWeaponAmmo, const int32 NewCarriedAmmo)
 {
 	const APawn* OwningPawn = Cast<APawn>(GetOwner());

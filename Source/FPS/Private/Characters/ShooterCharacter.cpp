@@ -84,6 +84,14 @@ void AShooterCharacter::NotifyReloadWeapon_Implementation()
 	CombatComponent->NotifyReloadWeapon();
 }
 
+void AShooterCharacter::AddAmmo_Implementation(const FGameplayTag& WeaponType, int32 AmmoAmount)
+{
+	if (HasAuthority() && IsValid(CombatComponent))
+	{
+		CombatComponent->AddAmmo(WeaponType, AmmoAmount);
+	}
+}
+
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();

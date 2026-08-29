@@ -94,6 +94,8 @@ public:
 	void NotifyCycleWeapon();
 	void NotifyReloadWeapon();
 	
+	void AddAmmo(const FGameplayTag& WeaponType, int32 AmmoAmount);
+	
 	void SpawnWeaponInventory();
 	void DestroyWeaponInventory();
 	void Equip(AWeapon* WeaponToEquip);
