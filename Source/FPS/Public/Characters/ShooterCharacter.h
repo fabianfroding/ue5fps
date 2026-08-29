@@ -9,6 +9,7 @@
 
 #include "ShooterCharacter.generated.h"
 
+class UHealthComponent;
 struct FGameplayTag;
 class UCombatComponent;
 
@@ -34,6 +35,9 @@ public:
 	TArray<TObjectPtr<UAnimMontage>> HitReacts;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Health")
+	TObjectPtr<UHealthComponent> HealthComponent;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Combat")
 	TObjectPtr<UCombatComponent> CombatComponent;
 	

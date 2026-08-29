@@ -9,6 +9,7 @@
 #include "Combat/CombatComponent.h"
 #include "Data/WeaponData.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Health/HealthComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Weapon/Weapon.h"
 
@@ -46,6 +47,9 @@ AShooterCharacter::AShooterCharacter()
 	
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 	CombatComponent->SetIsReplicated(true);
+	
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
+	HealthComponent->SetIsReplicated(true);
 	
 	DefaultFOV = 90.f;
 	TurningStatus = ETurningInPlace::NotTurning;
