@@ -39,6 +39,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Fire")
 	float FireTime;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Damage")
+	float Damage;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS|Ammo")
 	int32 MagCapacity;
 	

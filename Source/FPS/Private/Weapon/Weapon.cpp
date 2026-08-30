@@ -36,6 +36,7 @@ AWeapon::AWeapon()
 	StartingCarriedAmmo = 10;
 	AmmoSequence = 0;
 	WeaponStatus = EWeaponStatus::Idle;
+	Damage = 15.f;
 }
 
 void AWeapon::BeginPlay()
