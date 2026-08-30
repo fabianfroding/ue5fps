@@ -7,7 +7,7 @@
 
 #include "HealthComponent.generated.h"
 
-DECLARE_DYNAMIC_DELEGATE_FourParams(FOnHealthChangedSignature, UHealthComponent*, HealthComponent, float, OldValue, float, NewValue, AActor* Instigator);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedSignature, UHealthComponent*, HealthComponent, float, OldValue, float, NewValue, AActor*, Instigator);
 
 UENUM(BlueprintType)
 enum class EDeathState : uint8
