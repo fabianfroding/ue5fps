@@ -8,6 +8,7 @@
 #include "HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedSignature, UHealthComponent*, HealthComponent, float, OldValue, float, NewValue, AActor*, Instigator);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathStarted);
 
 UENUM(BlueprintType)
 enum class EDeathState : uint8
@@ -38,6 +39,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChangedSignature OnMaxHealthChanged;
 	
+	UPROPERTY(BlueprintAssignable)
+	FOnDeathStarted OnDeathStarted;
+	
 public:
 	UHealthComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
@@ -56,6 +60,8 @@ protected:
 	virtual void BeginPlay() override;
 	
 private:
+	void StartDeath();
+	
 	UFUNCTION()
 	void OnRep_DeathState(EDeathState OldDeathState);
 	

@@ -32,10 +32,24 @@ bool UHealthComponent::ChangeHealthByAmount(float Amount, AActor* Instigator)
 	const float OldValue = Health;
 	Health = FMath::Clamp(Health + Amount, 0.f, MaxHealth);
 	OnHealthChanged.Broadcast(this, OldValue, Health, Instigator);
-	// Check if lethal -> start death.
-	// return lethal.
+	
+	if (Health <= 0)
+	{
+		StartDeath();
+		return true;
+	}
 	
 	return false;
+}
+
+void UHealthComponent::StartDeath()
+{
+	if (DeathState != EDeathState::NotDead) return;
+	
+	DeathState = EDeathState::DeathStarted;
+	OnDeathStarted.Broadcast();
+	// Force owner to start replication now, so that the health component's rep-notify can be triggered a.s.a.p, and the shooter character can respawn on client as well.
+	GetOwner()->ForceNetUpdate();
 }
 
 void UHealthComponent::ChangeMaxHealthByAmount(float Amount, AActor* Instigator)
@@ -52,7 +66,10 @@ void UHealthComponent::BeginPlay()
 
 void UHealthComponent::OnRep_DeathState(EDeathState OldDeathState)
 {
-	
+	if (DeathState == EDeathState::DeathStarted)
+	{
+		OnDeathStarted.Broadcast();
+	}
 }
 
 void UHealthComponent::OnRep_Health(float OldHealth)

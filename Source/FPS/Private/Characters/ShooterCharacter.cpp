@@ -7,10 +7,13 @@
 
 #include "Camera/CameraComponent.h"
 #include "Combat/CombatComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Data/WeaponData.h"
+#include "FPS/FPS.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Health/HealthComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Player/ShooterPlayerController.h"
 #include "Weapon/Weapon.h"
 
 AShooterCharacter::AShooterCharacter()
@@ -122,8 +125,17 @@ void AShooterCharacter::Multicast_HitReact_Implementation(int32 MontageIndex)
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
+	
 	FirstPersonCamera->SetFieldOfView(DefaultFOV);
+	
 	StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+	
+	if (AShooterPlayerController* ShooterPlayerController = Cast<AShooterPlayerController>(GetController()); IsValid(ShooterPlayerController))
+	{
+		ShooterPlayerController->bPawnAlive = true;
+	}
 }
 
 void AShooterCharacter::BeginDestroy()
@@ -224,6 +236,25 @@ void AShooterCharacter::TurnInPlace(const float DeltaTime)
 			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		}
 	}
+}
+
+void AShooterCharacter::OnDeathStarted()
+{
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		DeathEffects();
+		if (AShooterPlayerController* ShooterPlayerController = Cast<AShooterPlayerController>(GetController()); IsValid(ShooterPlayerController))
+		{
+			DisableInput(ShooterPlayerController);
+			if (ShooterPlayerController->IsLocalController())
+			{
+				ShooterPlayerController->bPawnAlive = false;
+			}
+		}
+	}
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(FPSTraceChannels::ECC_Weapon, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(FPSTraceChannels::ECC_Weapon, ECR_Ignore);
 }
 
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

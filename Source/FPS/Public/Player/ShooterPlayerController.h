@@ -16,6 +16,9 @@ class FPS_API AShooterPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+public:
+	bool bPawnAlive;
+	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "FPS|Input")
 	TObjectPtr<UInputMappingContext> ShooterIMC;

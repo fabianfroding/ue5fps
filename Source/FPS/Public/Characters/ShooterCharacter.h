@@ -132,6 +132,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnAim(const bool bIsAiming);
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void DeathEffects();
+	
 private:
 	void CalculateFABRIKSocketTransform();
 	void CalculateTurnInPlaceParameters(const float DeltaTime);
@@ -140,5 +143,8 @@ private:
 	// Could be made Unreliable to improve performance. Not going to have a significant impact unless we're dealing with very high fire rates.
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_HitReact(int32 MontageIndex);
+	
+	UFUNCTION()
+	void OnDeathStarted();
 
 };
