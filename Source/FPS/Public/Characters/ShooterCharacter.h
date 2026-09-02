@@ -35,6 +35,10 @@ public:
 	TArray<TObjectPtr<UAnimMontage>> HitReacts;
 
 protected:
+	// 1st person view (arms).
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Mesh")
+	TObjectPtr<USkeletalMeshComponent> Mesh1P;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FPS|Health")
 	TObjectPtr<UHealthComponent> HealthComponent;
 	
@@ -57,10 +61,6 @@ protected:
 	ETurningInPlace TurningStatus = ETurningInPlace::NotTurning;
 	
 private:
-	// 1st person view (arms).
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USkeletalMeshComponent> Mesh1P;
-	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArm;
 	

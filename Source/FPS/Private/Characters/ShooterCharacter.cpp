@@ -240,6 +240,10 @@ void AShooterCharacter::TurnInPlace(const float DeltaTime)
 
 void AShooterCharacter::OnDeathStarted()
 {
+	if (HasAuthority())
+	{
+		CombatComponent->DestroyWeaponInventory();
+	}
 	if (GetNetMode() != NM_DedicatedServer)
 	{
 		DeathEffects();
