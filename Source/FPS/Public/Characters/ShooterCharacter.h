@@ -33,6 +33,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "FPS|HitReact")
 	TArray<TObjectPtr<UAnimMontage>> HitReacts;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "FPS|Respawn")
+	float RespawnTime;
 
 protected:
 	// 1st person view (arms).
@@ -80,6 +83,8 @@ private:
 	float InterpAOYaw;
 	
 	bool bWeaponFirstReplicated;
+	
+	FTimerHandle DeathTimer;
 
 public:
 	AShooterCharacter();
@@ -146,5 +151,8 @@ private:
 	
 	UFUNCTION()
 	void OnDeathStarted();
+	
+	UFUNCTION()
+	void DeathTimerFinished();
 
 };

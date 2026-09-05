@@ -10,8 +10,10 @@
 #include "Components/CapsuleComponent.h"
 #include "Data/WeaponData.h"
 #include "FPS/FPS.h"
+#include "Game/ShooterGameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Health/HealthComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/ShooterPlayerController.h"
 #include "Weapon/Weapon.h"
@@ -58,6 +60,7 @@ AShooterCharacter::AShooterCharacter()
 	TurningStatus = ETurningInPlace::NotTurning;
 	
 	bWeaponFirstReplicated = false;
+	RespawnTime = 5.f;
 	
 	// DEV NOTE: Calling virtual functions in constructors is bad practice. Issues usually arise when using subclasses.
 }
@@ -243,6 +246,7 @@ void AShooterCharacter::OnDeathStarted()
 	if (HasAuthority())
 	{
 		CombatComponent->DestroyWeaponInventory();
+		GetWorld()->GetTimerManager().SetTimer(DeathTimer, this, &AShooterCharacter::DeathTimerFinished, RespawnTime);
 	}
 	if (GetNetMode() != NM_DedicatedServer)
 	{
@@ -259,6 +263,14 @@ void AShooterCharacter::OnDeathStarted()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(FPSTraceChannels::ECC_Weapon, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(FPSTraceChannels::ECC_Weapon, ECR_Ignore);
+}
+
+void AShooterCharacter::DeathTimerFinished()
+{
+	if (AShooterGameModeBase* ShooterGameMode = Cast<AShooterGameModeBase>(UGameplayStatics::GetGameMode(this)); IsValid(ShooterGameMode))
+	{
+		ShooterGameMode->RequestRespawn(this, GetController());
+	}
 }
 
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
