@@ -109,12 +109,15 @@ void AShooterCharacter::AddAmmo_Implementation(const FGameplayTag& WeaponType, i
 bool AShooterCharacter::DoDamage_Implementation(float Damage, AActor* DamageInstigator)
 {
 	if (!IsValid(HealthComponent)) return false;
-	HealthComponent->ChangeHealthByAmount(-Damage, DamageInstigator);
+	
+	if (HealthComponent->ChangeHealthByAmount(-Damage, DamageInstigator))
+	{
+		// ChangeHealthByAmount returns true if lethal. Also, we can skip hit montage if death.
+		return true;
+	}
 	
 	const int32 MontageSelection = FMath::RandRange(0, HitReacts.Num() - 1);
 	Multicast_HitReact(MontageSelection);
-	
-	// Check if damage was lethal
 	return false;
 }
 
@@ -146,6 +149,7 @@ void AShooterCharacter::BeginPlay()
 	
 	if (HasAuthority())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("AShooterCharacter::BeginPlay: Bind."));
 		// We bind this here, because if we try bind it in the elim component we can't guarantee that combat comp is created yet.
 		// But from actor that owns the component, we can, since combat was created first in the constructor.
 		CombatComponent->OnRoundReported.AddDynamic(EliminationComponent, &UEliminationComponent::OnRoundReported);

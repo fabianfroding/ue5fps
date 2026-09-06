@@ -303,12 +303,17 @@ void UCombatComponent::Server_FireWeapon_Implementation(const FHitResult& Hit)
 	if (!IsValid(CurrentWeapon)) return;
 	if (CurrentWeapon->Ammo <= 0) return; // Server-side validation.
 	
-	// TODO: Broadcast on round reported;
+	const bool bHit = IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<UPlayerInterface>();
+	const bool bHeadShot = Hit.BoneName == "head"; // Hardcoded. May want this as variable.
+	bool bLethal = false;
 	
-	if (IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<UPlayerInterface>())
+	if (bHit)
 	{
-		IPlayerInterface::Execute_DoDamage(Hit.GetActor(), CurrentWeapon->Damage, GetOwner());
+		bLethal = IPlayerInterface::Execute_DoDamage(Hit.GetActor(), CurrentWeapon->Damage, GetOwner());
 	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::Server_FireWeapon_Implementation: OnRoundReported."));
+	OnRoundReported.Broadcast(GetOwner(), Hit.GetActor(), bHit, bHeadShot, bLethal);
 	
 	// Part of client-side prediction.
 	// If listen server and is locally controlled = host -> skip ammo prediction.

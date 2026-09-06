@@ -15,6 +15,7 @@ class FPS_API UEliminationComponent : public UActorComponent
 public:
 	UEliminationComponent();
 	
+	UFUNCTION()
 	void OnRoundReported(AActor* Attacker, AActor* Victim, bool bHit, bool bHeadShot, bool bLethal);
 	
 };
