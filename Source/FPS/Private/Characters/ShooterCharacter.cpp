@@ -9,6 +9,7 @@
 #include "Combat/CombatComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Data/WeaponData.h"
+#include "Elimination/EliminationComponent.h"
 #include "FPS/FPS.h"
 #include "Game/ShooterGameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -52,6 +53,9 @@ AShooterCharacter::AShooterCharacter()
 	
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 	CombatComponent->SetIsReplicated(true);
+	
+	EliminationComponent = CreateDefaultSubobject<UEliminationComponent>("EliminationComponent");
+	EliminationComponent->SetIsReplicated(false); // Handled server-side.
 	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	HealthComponent->SetIsReplicated(true);
@@ -138,6 +142,13 @@ void AShooterCharacter::BeginPlay()
 	if (AShooterPlayerController* ShooterPlayerController = Cast<AShooterPlayerController>(GetController()); IsValid(ShooterPlayerController))
 	{
 		ShooterPlayerController->bPawnAlive = true;
+	}
+	
+	if (HasAuthority())
+	{
+		// We bind this here, because if we try bind it in the elim component we can't guarantee that combat comp is created yet.
+		// But from actor that owns the component, we can, since combat was created first in the constructor.
+		CombatComponent->OnRoundReported.AddDynamic(EliminationComponent, &UEliminationComponent::OnRoundReported);
 	}
 }
 
