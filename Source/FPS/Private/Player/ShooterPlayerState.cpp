@@ -90,7 +90,7 @@ void AShooterPlayerState::AddShowStopperElim()
 	++ShowStopperElims;
 }
 
-void AShooterPlayerState::GetFirstBlood()
+void AShooterPlayerState::GotFirstBlood()
 {
 	bFirstBlood = true;
 }
@@ -98,4 +98,24 @@ void AShooterPlayerState::GetFirstBlood()
 void AShooterPlayerState::IsNowWinner()
 {
 	bWinner = true;
+}
+
+void AShooterPlayerState::SetOnStreak(bool bIsOnStreak)
+{
+	bOnStreak = bIsOnStreak;
+}
+
+bool AShooterPlayerState::IsOnStreak() const
+{
+	return bOnStreak;
+}
+
+void AShooterPlayerState::SetLastAttacker(APlayerState* Attacker)
+{
+	LastAttacker = Attacker;
+}
+
+APlayerState* AShooterPlayerState::GetLastAttacker() const
+{
+	return LastAttacker.IsValid() ? LastAttacker.Get() : nullptr;
 }

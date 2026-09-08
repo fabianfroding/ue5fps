@@ -24,8 +24,13 @@ public:
 	void AddRevengeElim();
 	void AddDethroneElim();
 	void AddShowStopperElim();
-	void GetFirstBlood();
+	void GotFirstBlood();
 	void IsNowWinner();
+	void SetOnStreak(bool bIsOnStreak);
+	bool IsOnStreak() const;
+	
+	void SetLastAttacker(APlayerState* Attacker);
+	APlayerState* GetLastAttacker() const;
 	
 private:
 	int32 ScoredElims;
@@ -41,5 +46,7 @@ private:
 	int32 ShowStopperElims; // "Shutdowns".
 	bool bFirstBlood;
 	bool bWinner;
+	
+	TWeakObjectPtr<APlayerState> LastAttacker;
 	
 };
