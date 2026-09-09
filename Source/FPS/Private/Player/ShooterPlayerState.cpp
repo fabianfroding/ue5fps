@@ -124,3 +124,8 @@ int32 AShooterPlayerState::GetScoredElims() const
 {
 	return ScoredElims;
 }
+
+void AShooterPlayerState::Client_LostTheLead_Implementation()
+{
+	// TODO: Show client that they lost the lead.
+}
