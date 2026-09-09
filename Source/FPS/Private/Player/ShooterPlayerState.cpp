@@ -5,7 +5,7 @@
 
 AShooterPlayerState::AShooterPlayerState()
 {
-	NetUpdateFrequency = 100.f;
+	SetNetUpdateFrequency(100.f);
 	
 	ScoredElims = 0;
 	Defeats = 0;
