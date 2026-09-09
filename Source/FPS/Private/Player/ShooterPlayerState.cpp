@@ -119,3 +119,8 @@ APlayerState* AShooterPlayerState::GetLastAttacker() const
 {
 	return LastAttacker.IsValid() ? LastAttacker.Get() : nullptr;
 }
+
+int32 AShooterPlayerState::GetScoredElims() const
+{
+	return ScoredElims;
+}

@@ -31,6 +31,7 @@ public:
 	
 	void SetLastAttacker(APlayerState* Attacker);
 	APlayerState* GetLastAttacker() const;
+	int32 GetScoredElims() const;
 	
 private:
 	int32 ScoredElims;
