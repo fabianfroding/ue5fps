@@ -7,10 +7,16 @@
 #include "ShooterTypes/ShooterTypes.h"
 #include "ShooterPlayerState.generated.h"
 
+class USpecialElimData;
+
 UCLASS()
 class FPS_API AShooterPlayerState : public APlayerState
 {
 	GENERATED_BODY()
+	
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS|SpecialElims")
+	TObjectPtr<USpecialElimData> SpecialElimData;
 	
 public:
 	AShooterPlayerState();
