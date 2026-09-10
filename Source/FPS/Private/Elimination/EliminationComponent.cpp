@@ -77,7 +77,15 @@ void UEliminationComponent::ProcessElimination(bool bHeadShot, AShooterPlayerSta
 	UpdateLeaderStatus(GameState, SpecialElimType, AttackerPS, VictimPS);
 	
 	// If has special elim types - Tell client which special elims we got
+	if (HasSpecialElimTypes(SpecialElimType)) // Extra check to save bandwidth.
+	{
+		AttackerPS->Client_SpecialElim(SpecialElimType, SequentialElims, Streak, AttackerPS->GetScoredElims());
+	}
 	// Else we just got a regular elim
+	else
+	{
+		AttackerPS->Client_ScoredElim(AttackerPS->GetScoredElims());
+	}
 }
 
 void UEliminationComponent::ProcessHeadShot(bool bHeadShot, ESpecialElimType& OutElimType, AShooterPlayerState* AttackerPS)
@@ -168,4 +176,9 @@ void UEliminationComponent::UpdateLeaderStatus(AShooterGameStateBase* GameState,
 	{
 		OutElimType |= ESpecialElimType::GainedTheLead;
 	}
+}
+
+bool UEliminationComponent::HasSpecialElimTypes(const ESpecialElimType& SpecialElimType) const
+{
+	return static_cast<uint16>(SpecialElimType) != 0;
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "ShooterTypes/ShooterTypes.h"
 #include "ShooterPlayerState.generated.h"
 
 UCLASS()
@@ -35,6 +36,12 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void Client_LostTheLead();
+	
+	UFUNCTION(Client, Reliable)
+	void Client_ScoredElim(int32 ElimScore);
+	
+	UFUNCTION(Client, Reliable)
+	void Client_SpecialElim(const ESpecialElimType& SpecialElim, int32 SequentialElimCount, int32 StreakCount, int32 ElimScore);
 	
 private:
 	int32 ScoredElims;
