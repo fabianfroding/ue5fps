@@ -22,6 +22,8 @@ AShooterPlayerState::AShooterPlayerState()
 	ShowStopperElims = 0;
 	bFirstBlood = false;
 	bWinner = false;
+	bIsProcessingQueue = false;
+	ElimDisplayTime = 0.5f;
 }
 
 void AShooterPlayerState::AddScoredElim()
@@ -134,7 +136,7 @@ TArray<ESpecialElimType> AShooterPlayerState::DecodeElimBitmask(ESpecialElimType
 	
 	uint16 BitmaskValue = static_cast<uint16>(ElimTypeBitmask);
 	
-	for (int16 i = 0; i < 16, i++)
+	for (int16 i = 0; i < 16; i++)
 	{
 		// 00000000		&	 00000001 etc -> false. Both need 1 at same position.
 		if (BitmaskValue & (1 << i))
@@ -149,7 +151,31 @@ TArray<ESpecialElimType> AShooterPlayerState::DecodeElimBitmask(ESpecialElimType
 
 void AShooterPlayerState::Client_SpecialElim_Implementation(const ESpecialElimType& SpecialElim, int32 SequentialElimCount, int32 StreakCount, int32 ElimScore)
 {
+	ensure(IsValid(SpecialElimData));
 	
+	TArray<ESpecialElimType> ElimTypes = DecodeElimBitmask(SpecialElim);
+	for (ESpecialElimType ElimType : ElimTypes)
+	{
+		FSpecialElimInfo& ElimMessageInfo = SpecialElimData->SpecialElimInfo.FindChecked(ElimType);
+		if (ElimType == ESpecialElimType::Sequential)
+		{
+			ElimMessageInfo.SequentialElimCount = SequentialElimCount;
+		}
+		if (ElimType == ESpecialElimType::Streak)
+		{
+			ElimMessageInfo.StreakCount = StreakCount;
+		}
+		ElimMessageInfo.ElimType = ElimType;
+		
+		// Queue message info to process them over time.
+		SpecialElimQueue.Enqueue(ElimMessageInfo);
+	}
+	
+	if (!bIsProcessingQueue)
+	{
+		// Process next item in the queue
+		ProcessNextSpecialElim();
+	}
 }
 
 void AShooterPlayerState::Client_ScoredElim_Implementation(int32 ElimScore)
@@ -168,6 +194,53 @@ void AShooterPlayerState::Client_LostTheLead_Implementation()
 		if (IsValid(SpecialElimWidget))
 		{
 			SpecialElimWidget->InitializeWidget(ElimMessageInfo.ElimMessage.ToString(), ElimMessageInfo.ElimIcon);
+			SpecialElimWidget->AddToViewport();
+		}
+	}
+}
+
+void AShooterPlayerState::ProcessNextSpecialElim()
+{
+	FSpecialElimInfo ElimInfo;
+	if (SpecialElimQueue.Dequeue(ElimInfo))
+	{
+		bIsProcessingQueue = true;
+		ShowSpecialElim(ElimInfo);
+		
+		// Wait until next tick, then wait for the display time before processing next elim.
+		GetWorldTimerManager().SetTimerForNextTick([this]()
+		{
+			FTimerHandle TimerHandle;
+			GetWorldTimerManager().SetTimer(TimerHandle, this, &AShooterPlayerState::ProcessNextSpecialElim, ElimDisplayTime, false);
+		});
+	}
+	else
+	{
+		bIsProcessingQueue = false;
+	}
+}
+
+void AShooterPlayerState::ShowSpecialElim(const FSpecialElimInfo& ElimMessageInfo)
+{
+	FString ElimMessageString = ElimMessageInfo.ElimMessage.ToString();
+	if (ElimMessageInfo.ElimType == ESpecialElimType::Sequential)
+	{
+		if (ElimMessageInfo.SequentialElimCount == 2) ElimMessageString = FString("Double kill!");
+		else if (ElimMessageInfo.SequentialElimCount == 3) ElimMessageString = FString("Triple kill!");
+		else if (ElimMessageInfo.SequentialElimCount == 4) ElimMessageString = FString("Quadra kill!");
+		else if (ElimMessageInfo.SequentialElimCount > 4) ElimMessageString = FString::Printf(TEXT("Rampage x%d!"), ElimMessageInfo.SequentialElimCount);
+	}
+	if (ElimMessageInfo.ElimType == ESpecialElimType::Streak)
+	{
+		ElimMessageString = FString::Printf(TEXT("Streak x%d!"), ElimMessageInfo.StreakCount);
+	}
+	
+	if (IsValid(SpecialElimWidgetClass))
+	{
+		USpecialElimWidget* SpecialElimWidget = CreateWidget<USpecialElimWidget>(GetPlayerController(), SpecialElimWidgetClass);
+		if (IsValid(SpecialElimWidget))
+		{
+			SpecialElimWidget->InitializeWidget(ElimMessageString, ElimMessageInfo.ElimIcon);
 			SpecialElimWidget->AddToViewport();
 		}
 	}

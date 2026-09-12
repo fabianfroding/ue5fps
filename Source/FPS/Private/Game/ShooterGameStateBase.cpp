@@ -66,5 +66,5 @@ AShooterPlayerState* AShooterGameStateBase::GetSoleLeader() const
 
 bool AShooterGameStateBase::IsTiedForTheLead(APlayerState* PlayerState)
 {
-	return Leaders.Contains(PlayerState);
+	return Leaders.Contains(PlayerState) && Leaders.Num() > 1;
 }
