@@ -153,6 +153,8 @@ void AShooterPlayerState::Client_SpecialElim_Implementation(const ESpecialElimTy
 {
 	ensure(IsValid(SpecialElimData));
 	
+	OnScoreChanged.Broadcast(ElimScore);
+	
 	TArray<ESpecialElimType> ElimTypes = DecodeElimBitmask(SpecialElim);
 	for (ESpecialElimType ElimType : ElimTypes)
 	{
@@ -180,7 +182,7 @@ void AShooterPlayerState::Client_SpecialElim_Implementation(const ESpecialElimTy
 
 void AShooterPlayerState::Client_ScoredElim_Implementation(int32 ElimScore)
 {
-	
+	OnScoreChanged.Broadcast(ElimScore);
 }
 
 void AShooterPlayerState::Client_LostTheLead_Implementation()

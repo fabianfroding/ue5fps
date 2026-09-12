@@ -11,6 +11,8 @@ class UInputAction;
 class UInputMappingContext;
 struct FInputActionValue;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerStateReplicated);
+
 UCLASS()
 class FPS_API AShooterPlayerController : public APlayerController
 {
@@ -18,6 +20,9 @@ class FPS_API AShooterPlayerController : public APlayerController
 	
 public:
 	bool bPawnAlive;
+	
+	UPROPERTY(BlueprintAssignable)
+	FPlayerStateReplicated OnPlayerStateReplicated;
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "FPS|Input")
@@ -41,6 +46,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+	virtual void OnRep_PlayerState() override;
 	
 private:
 	void InputCrouch();

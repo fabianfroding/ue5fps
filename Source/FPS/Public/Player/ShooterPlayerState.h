@@ -11,6 +11,8 @@ struct FSpecialElimInfo;
 class USpecialElimWidget;
 class USpecialElimData;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FScoreChanged, int32, NewScore);
+
 UCLASS()
 class FPS_API AShooterPlayerState : public APlayerState
 {
@@ -22,6 +24,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS|SpecialElims")
 	TSubclassOf<USpecialElimWidget> SpecialElimWidgetClass;
+	
+	UPROPERTY(BlueprintAssignable)
+	FScoreChanged OnScoreChanged;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly)

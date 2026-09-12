@@ -36,6 +36,12 @@ void AShooterPlayerController::SetupInputComponent()
 	ShooterInputComponent->BindAction(CrouchInputAction, ETriggerEvent::Started, this, &AShooterPlayerController::InputCrouch);
 }
 
+void AShooterPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	OnPlayerStateReplicated.Broadcast();
+}
+
 void AShooterPlayerController::InputCrouch()
 {
 	if (!IsValid(GetCharacter())) return;
