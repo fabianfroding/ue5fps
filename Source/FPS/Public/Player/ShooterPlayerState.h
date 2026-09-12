@@ -7,6 +7,7 @@
 #include "ShooterTypes/ShooterTypes.h"
 #include "ShooterPlayerState.generated.h"
 
+class USpecialElimWidget;
 class USpecialElimData;
 
 UCLASS()
@@ -17,6 +18,9 @@ class FPS_API AShooterPlayerState : public APlayerState
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS|SpecialElims")
 	TObjectPtr<USpecialElimData> SpecialElimData;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPS|SpecialElims")
+	TSubclassOf<USpecialElimWidget> SpecialElimWidgetClass;
 	
 public:
 	AShooterPlayerState();
