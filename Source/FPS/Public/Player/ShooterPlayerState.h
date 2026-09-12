@@ -70,4 +70,6 @@ private:
 	
 	TWeakObjectPtr<APlayerState> LastAttacker;
 	
+	TArray<ESpecialElimType> DecodeElimBitmask(ESpecialElimType ElimTypeBitmask);
+	
 };
